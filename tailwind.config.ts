@@ -57,6 +57,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        node: {
+          "initial-access": "hsl(var(--node-initial-access))",
+          c2: "hsl(var(--node-c2))",
+          lateral: "hsl(var(--node-lateral))",
+          execution: "hsl(var(--node-execution))",
+          privilege: "hsl(var(--node-privilege))",
+          objective: "hsl(var(--node-objective))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
