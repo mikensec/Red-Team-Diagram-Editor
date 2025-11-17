@@ -6,7 +6,6 @@ import ReactFlow, {
   addEdge,
   Connection,
   Edge,
-  Node,
   useNodesState,
   useEdgesState,
   NodeTypes,
@@ -14,7 +13,8 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { CustomNode } from '@/nodes/CustomNode';
 import { Toolbar } from './Toolbar';
-import { NodeType, AttackNode, Diagram } from '@/types/Diagram';
+import { AddNodeDialog } from './AddNodeDialog';
+import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,16 +24,12 @@ const initialEdges: Edge[] = [];
 export const DiagramEditor = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const nodeTypes: NodeTypes = useMemo(
     () => ({
-      'initial-access': CustomNode,
-      'c2': CustomNode,
-      'lateral-movement': CustomNode,
-      'execution': CustomNode,
-      'privilege-escalation': CustomNode,
-      'objective': CustomNode,
+      custom: CustomNode,
     }),
     []
   );
@@ -64,17 +60,17 @@ export const DiagramEditor = () => {
   );
 
   const handleAddNode = useCallback(
-    (type: NodeType) => {
+    (data: NodeData) => {
       const newNode: AttackNode = {
-        id: `${type}-${Date.now()}`,
-        type,
+        id: `node-${Date.now()}`,
+        type: 'custom',
         position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
-        data: { label: type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') },
+        data,
       };
       setNodes((nds) => [...nds, newNode]);
       toast({
         title: 'Node added',
-        description: `Added ${newNode.data.label} node`,
+        description: `Added ${data.label} node`,
       });
     },
     [setNodes, toast]
@@ -122,10 +118,15 @@ export const DiagramEditor = () => {
   return (
     <div className="w-screen h-screen">
       <Toolbar
-        onAddNode={handleAddNode}
+        onAddNodeClick={() => setDialogOpen(true)}
         onExport={handleExport}
         onImport={handleImport}
         onReset={handleReset}
+      />
+      <AddNodeDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onAddNode={handleAddNode}
       />
       <ReactFlow
         nodes={nodes}
@@ -140,15 +141,8 @@ export const DiagramEditor = () => {
         <Controls />
         <MiniMap
           nodeColor={(node) => {
-            const colors: Record<string, string> = {
-              'initial-access': 'hsl(var(--node-initial-access))',
-              'c2': 'hsl(var(--node-c2))',
-              'lateral-movement': 'hsl(var(--node-lateral))',
-              'execution': 'hsl(var(--node-execution))',
-              'privilege-escalation': 'hsl(var(--node-privilege))',
-              'objective': 'hsl(var(--node-objective))',
-            };
-            return colors[node.type || 'c2'];
+            const nodeData = node.data as NodeData;
+            return nodeData?.color || '#3b82f6';
           }}
           maskColor="hsl(var(--background) / 0.9)"
         />
