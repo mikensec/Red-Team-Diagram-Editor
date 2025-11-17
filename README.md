@@ -323,7 +323,7 @@ Red team professional and security tool developer. This tool was created to stre
 Need help or have questions?
 
 - **Documentation**: Check this README and the in-app Help page
-- **Issues**: [Open an issue](https://github.com/[your-username]/[repo-name]/issues) on GitHub
+- **Issues**: [Open an issue](https://github.com/mikensec/red-team-canvas/issues) on GitHub
 - **Discussions**: Join conversations in the repository's Discussions tab
 - **LinkedIn**: Connect with me for questions or collaboration
 
