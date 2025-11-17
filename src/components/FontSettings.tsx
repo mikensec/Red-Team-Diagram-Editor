@@ -23,7 +23,7 @@ export const FontSettings = ({ children }: FontSettingsProps) => {
       <SheetTrigger asChild>
         {children}
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Font Settings</SheetTitle>
           <SheetDescription>
@@ -31,7 +31,7 @@ export const FontSettings = ({ children }: FontSettingsProps) => {
           </SheetDescription>
         </SheetHeader>
         
-        <div className="mt-6">
+        <div className="mt-6 pb-6">
           <RadioGroup value={font} onValueChange={(value) => setFont(value as any)}>
             <div className="space-y-4">
               {FONT_OPTIONS.map((option) => (
