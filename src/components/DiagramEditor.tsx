@@ -415,6 +415,29 @@ export const DiagramEditor = () => {
     );
   }, [handleEditNode, handleCloneNode, handleDeleteNode, setNodes]);
 
+  // Handle Delete key for edges and nodes
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isPresentationMode) return;
+      
+      if (e.key === 'Delete') {
+        // Delete selected edges
+        setEdges((eds) => eds.filter((edge) => !edge.selected));
+        
+        // Delete selected nodes
+        const selectedNodes = nodes.filter((node) => node.selected);
+        if (selectedNodes.length > 0) {
+          selectedNodes.forEach(node => {
+            handleDeleteNode(node.id);
+          });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPresentationMode, nodes, setEdges, handleDeleteNode]);
+
   // Modify node styles for presentation mode
   const presentationNodes = useMemo(() => {
     if (!isPresentationMode) return nodes;
