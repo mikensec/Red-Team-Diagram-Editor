@@ -58,8 +58,11 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72">
-            <SheetHeader>
-              <SheetTitle>Menu</SheetTitle>
+          <SheetHeader>
+              <div className="flex items-center gap-3">
+                <img src="/icon-192x192.png" alt="Red Team Canvas" className="w-8 h-8" />
+                <SheetTitle>Red Team Canvas</SheetTitle>
+              </div>
             </SheetHeader>
             
             <div className="flex flex-col gap-3 mt-6">
@@ -151,6 +154,10 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
       {/* Desktop Toolbar - Shows on large screens */}
       <div className={`absolute top-4 left-4 z-50 hidden lg:flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
         <div className="flex items-center gap-2">
+          <img src="/icon-192x192.png" alt="Red Team Canvas" className="w-6 h-6" />
+          <span className="text-sm font-semibold text-foreground">Red Team Canvas</span>
+          
+          <div className="w-px h-6 bg-border mx-1" />
           <Button onClick={onAddNodeClick} variant="default" size="sm">
             <Plus className="w-4 h-4 mr-2" />
             Add Node
