@@ -251,12 +251,56 @@ export const DiagramEditor = () => {
     });
   }, [setNodes, setEdges, toast]);
 
+  // Presentation order management
+  const handleUpdateNodeOrder = useCallback((nodeId: string, order: number | undefined) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, presentationOrder: order } }
+          : node
+      )
+    );
+  }, [setNodes]);
+
+  const handleAutoOrder = useCallback(() => {
+    // Sort nodes by position (top-to-bottom, left-to-right)
+    const sortedNodes = [...nodes].sort((a, b) => {
+      const yDiff = a.position.y - b.position.y;
+      if (Math.abs(yDiff) > 50) return yDiff;
+      return a.position.x - b.position.x;
+    });
+    
+    setNodes((nds) =>
+      nds.map((node) => {
+        const order = sortedNodes.findIndex((n) => n.id === node.id) + 1;
+        return { ...node, data: { ...node.data, presentationOrder: order } };
+      })
+    );
+  }, [nodes, setNodes]);
+
+  const handleQuickAssignOrder = useCallback((nodeId: string) => {
+    const maxOrder = Math.max(0, ...nodes.map(n => (n as AttackNode).data.presentationOrder || 0));
+    handleUpdateNodeOrder(nodeId, maxOrder + 1);
+    toast({
+      title: 'Order assigned',
+      description: `Set as step ${maxOrder + 1}`,
+    });
+  }, [nodes, handleUpdateNodeOrder, toast]);
+
+  // Get sorted nodes for presentation mode
+  const presentationSortedNodes = useMemo(() => {
+    const orderedNodes = (nodes as AttackNode[])
+      .filter(n => n.data.presentationOrder !== undefined)
+      .sort((a, b) => (a.data.presentationOrder || 0) - (b.data.presentationOrder || 0));
+    return orderedNodes;
+  }, [nodes]);
+
   // Presentation mode functions
   const handleStartPresentation = useCallback(() => {
-    if (nodes.length === 0) {
+    if (presentationSortedNodes.length === 0) {
       toast({
-        title: 'No nodes to present',
-        description: 'Add some nodes before starting presentation mode',
+        title: 'No ordered nodes',
+        description: 'Use "Manage Order" to set up presentation flow first',
         variant: 'destructive',
       });
       return;
@@ -265,10 +309,10 @@ export const DiagramEditor = () => {
     setIsPresentationMode(true);
     setCurrentPresentationIndex(0);
     
-    // Focus on first node
+    // Focus on first ordered node
     setTimeout(() => {
       fitView({
-        nodes: [{ id: nodes[0].id }], 
+        nodes: [{ id: presentationSortedNodes[0].id }], 
         duration: 800, 
         padding: 0.3,
         maxZoom: 1.5,
@@ -279,7 +323,7 @@ export const DiagramEditor = () => {
       title: 'Presentation mode',
       description: 'Use arrow keys to navigate. Press Escape to exit.',
     });
-  }, [nodes, fitView, toast]);
+  }, [presentationSortedNodes, fitView, toast]);
 
   const handleExitPresentation = useCallback(() => {
     setIsPresentationMode(false);
@@ -291,30 +335,30 @@ export const DiagramEditor = () => {
   }, [isFullscreen, fitView]);
 
   const handleNextNode = useCallback(() => {
-    if (currentPresentationIndex < nodes.length - 1) {
+    if (currentPresentationIndex < presentationSortedNodes.length - 1) {
       const nextIndex = currentPresentationIndex + 1;
       setCurrentPresentationIndex(nextIndex);
       fitView({ 
-        nodes: [{ id: nodes[nextIndex].id }], 
+        nodes: [{ id: presentationSortedNodes[nextIndex].id }], 
         duration: 800, 
         padding: 0.3,
         maxZoom: 1.5,
       });
     }
-  }, [currentPresentationIndex, nodes, fitView]);
+  }, [currentPresentationIndex, presentationSortedNodes, fitView]);
 
   const handlePreviousNode = useCallback(() => {
     if (currentPresentationIndex > 0) {
       const prevIndex = currentPresentationIndex - 1;
       setCurrentPresentationIndex(prevIndex);
       fitView({ 
-        nodes: [{ id: nodes[prevIndex].id }], 
+        nodes: [{ id: presentationSortedNodes[prevIndex].id }], 
         duration: 800, 
         padding: 0.3,
         maxZoom: 1.5,
       });
     }
-  }, [currentPresentationIndex, nodes, fitView]);
+  }, [currentPresentationIndex, presentationSortedNodes, fitView]);
 
   const handleToggleFullscreen = useCallback(async () => {
     if (!document.fullscreenElement) {
