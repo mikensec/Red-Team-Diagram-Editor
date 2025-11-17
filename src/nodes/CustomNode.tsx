@@ -71,7 +71,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
 
         {/* Main node container */}
         <div
-          className="relative px-4 py-3 rounded-lg border-2 min-w-[180px] shadow-2xl transition-all hover:shadow-xl bg-card/90 backdrop-blur-sm"
+          className="relative px-4 py-3 rounded-lg border min-w-[180px] shadow-2xl transition-all hover:shadow-xl bg-card/90 backdrop-blur-sm"
           style={{
             borderColor: data.color,
             boxShadow: neonMode 
