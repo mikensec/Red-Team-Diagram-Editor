@@ -24,14 +24,6 @@ export const AttachmentManager = ({ attachments, onChange }: AttachmentManagerPr
 
   const processImageFile = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-      if (file.size > MAX_FILE_SIZE) {
-        toast({
-          title: 'Warning',
-          description: 'File is large (>5MB). May affect performance.',
-          variant: 'destructive',
-        });
-      }
-
       const reader = new FileReader();
       reader.onload = (e) => {
         resolve(e.target?.result as string);
@@ -45,6 +37,32 @@ export const AttachmentManager = ({ attachments, onChange }: AttachmentManagerPr
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    // Check max attachments limit before processing
+    if (attachments.length >= INPUT_LIMITS.MAX_ATTACHMENTS) {
+      toast({
+        title: 'Too many attachments',
+        description: `Maximum ${INPUT_LIMITS.MAX_ATTACHMENTS} attachments allowed per node`,
+        variant: 'destructive',
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    // Check if adding these files would exceed the limit
+    if (attachments.length + files.length > INPUT_LIMITS.MAX_ATTACHMENTS) {
+      toast({
+        title: 'Too many files',
+        description: `Can only add ${INPUT_LIMITS.MAX_ATTACHMENTS - attachments.length} more attachment(s)`,
+        variant: 'destructive',
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
@@ -53,10 +71,21 @@ export const AttachmentManager = ({ attachments, onChange }: AttachmentManagerPr
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
+        // Validate file type
         if (!file.type.startsWith('image/')) {
           toast({
             title: 'Invalid file type',
             description: `${file.name} is not an image file`,
+            variant: 'destructive',
+          });
+          continue;
+        }
+
+        // Enforce file size limit
+        if (file.size > MAX_FILE_SIZE) {
+          toast({
+            title: 'File too large',
+            description: `${file.name} exceeds 5MB limit and cannot be uploaded`,
             variant: 'destructive',
           });
           continue;
@@ -71,6 +100,15 @@ export const AttachmentManager = ({ attachments, onChange }: AttachmentManagerPr
           data,
           createdAt: Date.now(),
         });
+      }
+
+      if (newAttachments.length === 0) {
+        toast({
+          title: 'No files uploaded',
+          description: 'No valid files were processed',
+          variant: 'destructive',
+        });
+        return;
       }
 
       onChange([...attachments, ...newAttachments]);
