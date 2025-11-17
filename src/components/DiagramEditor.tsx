@@ -89,16 +89,24 @@ export const DiagramEditor = () => {
     const node = nodes.find((n) => n.id === nodeId) as AttackNode;
     if (node) {
       const newNodeId = `node-${Date.now()}`;
+      
+      // Create a completely new node object without spreading the original
       const newNode: AttackNode = {
-        ...node,
         id: newNodeId,
+        type: 'custom',
         position: {
           x: node.position.x + 150,
           y: node.position.y + 150,
         },
         data: {
-          ...node.data,
-          attachments: node.data.attachments ? [...node.data.attachments] : undefined,
+          label: node.data.label,
+          icon: node.data.icon,
+          color: node.data.color,
+          description: node.data.description,
+          attachments: node.data.attachments ? JSON.parse(JSON.stringify(node.data.attachments)) : undefined,
+          onEdit: handleEditNode,
+          onClone: undefined, // Will be set after this function is defined
+          onDelete: undefined, // Will be set after handleDeleteNode is defined
         },
       };
 
@@ -123,7 +131,7 @@ export const DiagramEditor = () => {
         description: `Cloned ${node.data.label} node with attachments`,
       });
     }
-  }, [nodes, setNodes, toast]);
+  }, [nodes, setNodes, toast, handleEditNode]);
 
   const handleDeleteNode = useCallback(async (nodeId: string) => {
     // Delete attachments from IndexedDB
