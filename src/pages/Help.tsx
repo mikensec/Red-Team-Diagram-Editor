@@ -25,7 +25,7 @@ const Help = () => {
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => window.open('https://github.com/mikensec/red-team-canvas', '_blank')}
+            onClick={() => window.open('https://github.com/mikensec/Red-Team-Diagram-Editor', '_blank')}
           >
             <Github className="w-4 h-4 mr-2" />
             GitHub
