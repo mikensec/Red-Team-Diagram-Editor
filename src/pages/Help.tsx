@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Plus, Edit, Copy, Trash2, Download, Upload, Paperclip, Link as LinkIcon, Image as ImageIcon, Presentation, ChevronRight, ChevronLeft, Maximize, Github, Contact } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import banner from '@/assets/banner.png';
 
 const Help = () => {
   const navigate = useNavigate();
@@ -10,6 +11,11 @@ const Help = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* Banner */}
+        <div className="flex justify-center mb-8">
+          <img src={banner} alt="Red Team Diagram Editor" className="max-w-2xl w-full h-auto" />
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
