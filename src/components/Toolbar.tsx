@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu, ListOrdered } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ interface ToolbarProps {
   onImport: (file: File) => void;
   onReset: () => void;
   onStartPresentation: () => void;
+  onManagePresentationOrder: () => void;
   hasNodes: boolean;
 }
 export const Toolbar = ({
@@ -24,6 +25,7 @@ export const Toolbar = ({
   onImport,
   onReset,
   onStartPresentation,
+  onManagePresentationOrder,
   hasNodes
 }: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -97,6 +99,11 @@ export const Toolbar = ({
               </Button>
 
               <Separator />
+
+              <Button onClick={() => handleMobileAction(onManagePresentationOrder)} variant="outline" size="sm" disabled={!hasNodes} className="w-full justify-start">
+                <ListOrdered className="w-4 h-4 mr-2" />
+                Manage Order
+              </Button>
 
               <Button onClick={() => handleMobileAction(onStartPresentation)} variant="default" size="sm" disabled={!hasNodes} className="w-full justify-start">
                 <Presentation className="w-4 h-4 mr-2" />
