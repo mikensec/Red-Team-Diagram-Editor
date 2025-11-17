@@ -7,12 +7,16 @@ import { NodeData } from '@/types/Diagram';
 export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
   const [isHovered, setIsHovered] = useState(false);
   const IconComponent = AVAILABLE_ICONS.find((icon) => icon.name === data.icon)?.component;
+  
+  // Add white outline for black/dark colors for visibility
+  const isVeryDark = data.color.toLowerCase() === '#000000' || data.color.toLowerCase() === '#000';
 
   return (
     <div
       className="relative px-4 py-3 rounded-lg border-2 min-w-[150px] text-center shadow-lg transition-all hover:shadow-xl bg-card"
       style={{
         borderColor: data.color,
+        boxShadow: isVeryDark ? `0 0 0 1px hsl(var(--border)), 0 10px 15px -3px rgb(0 0 0 / 0.1)` : undefined,
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
