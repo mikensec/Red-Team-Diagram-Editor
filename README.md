@@ -3,8 +3,9 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Live Demo](https://img.shields.io/badge/demo-live-blue.svg)](https://red.michaelnieto.com)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB.svg)](https://reactjs.org/)
+[![PWA](https://img.shields.io/badge/PWA-enabled-5A0FC8.svg)](https://web.dev/progressive-web-apps/)
 
-A powerful, browser-based tool for creating and managing red team attack diagrams. Built with React Flow, this application provides an intuitive interface for visualizing attack paths, tactics, and techniques with zero backend dependencies.
+A powerful, browser-based Progressive Web App (PWA) for creating and managing red team attack diagrams. Built with React Flow, this application provides an intuitive interface for visualizing attack paths, tactics, and techniques with zero backend dependencies. Install it like a native app and run it completely offline.
 
 **Live Demo:** [red.michaelnieto.com](https://red.michaelnieto.com)
 
@@ -42,16 +43,19 @@ A powerful, browser-based tool for creating and managing red team attack diagram
 - **Dark/Light Mode**: Seamless theme switching
 
 ### Advanced Features
+- **Progressive Web App (PWA)**: Install as a native app on desktop or mobile
+- **Fully Offline-Capable**: Works 100% offline after installation - perfect for air-gapped environments
 - **Attachment Management**: Add files, links, and notes to nodes
 - **Presentation Mode**: Clean view for presenting diagrams
 - **Responsive Design**: Works on desktop and mobile devices
-- **Offline-First**: Runs 100% in the browser with IndexedDB storage
-- **No Backend Required**: Complete client-side application
+- **No Backend Required**: Complete client-side application with localStorage and IndexedDB
+- **Auto-Updates**: Service worker automatically updates to latest version
 
 ## 🛠️ Technology Stack
 
 - **Frontend Framework**: React 18.3 with TypeScript
 - **Build Tool**: Vite
+- **PWA Support**: vite-plugin-pwa + Workbox
 - **Diagramming**: React Flow 11
 - **UI Components**: Radix UI + shadcn/ui
 - **Styling**: Tailwind CSS with custom design system
@@ -91,6 +95,30 @@ A powerful, browser-based tool for creating and managing red team attack diagram
 
 4. **Open your browser**
    Navigate to `http://localhost:8080`
+
+### Installing as a PWA
+
+The app can be installed as a Progressive Web App for offline use:
+
+**Desktop (Chrome, Edge, Brave):**
+1. Visit the app in your browser
+2. Look for the install icon (⊕) in the address bar
+3. Click "Install" to add it as a native app
+4. Access from your Start Menu or Applications folder
+
+**Mobile (iOS Safari):**
+1. Visit the app in Safari
+2. Tap the Share button
+3. Select "Add to Home Screen"
+4. Tap "Add" to install
+
+**Mobile (Android Chrome):**
+1. Visit the app in Chrome
+2. Tap the menu (⋮)
+3. Select "Install app" or "Add to Home Screen"
+4. Tap "Install"
+
+Once installed, the app works completely offline with all features available.
 
 ### Available Scripts
 
