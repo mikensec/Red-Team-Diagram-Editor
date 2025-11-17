@@ -12,20 +12,18 @@ A powerful, browser-based tool for creating and managing red team attack diagram
 
 ### Core Functionality
 - **Full-Featured Diagram Editor**: Powered by React Flow with smooth interactions
-- **6 Attack Stage Node Types**: 
-  - Initial Access
-  - Command & Control (C2)
-  - Lateral Movement
-  - Execution
-  - Privilege Escalation
-  - Objective
-- **Color-Coded Nodes**: Each node type has a unique color for instant identification
+- **Custom Node Creation**: Add nodes with custom labels, colors, and icons
+  - Choose from 36+ professional icons (Shield, Network, Terminal, Cloud, etc.)
+  - Full color customization with color picker
+  - Any custom label text for your attack stages
+- **Flexible Node Types**: Create any attack stage nodes you need (Initial Access, C2, Lateral Movement, Execution, Privilege Escalation, Objective, or custom stages)
 - **Auto-Save**: Diagrams automatically persist to browser localStorage
 - **Import/Export**: Save and load diagrams as JSON files
 - **Multiple Diagrams**: Create and manage multiple attack scenarios
 
 ### Customization
-- **Custom Icons**: 60+ icons to choose from for each node
+- **Custom Icons**: 36+ professional icons to choose from for each node (Shield, Network, Terminal, Target, Key, Database, Server, Cloud, and more)
+- **Custom Colors**: Full color picker for node customization
 - **Background Themes**: Multiple built-in backgrounds (abstract, mountains, nature, night city)
 - **Neon Mode**: Toggle cyberpunk-style neon aesthetics
 - **Font Customization**: Adjust font family and size
