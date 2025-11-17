@@ -1,9 +1,20 @@
 import { Node, Edge } from 'reactflow';
 
+export interface Attachment {
+  id: string;
+  type: 'link' | 'image';
+  name: string;
+  url?: string; // For links
+  data?: string; // base64 for images
+  createdAt: number;
+}
+
 export interface NodeData {
   label: string;
   icon: string;
   color: string;
+  description?: string;
+  attachments?: Attachment[];
   onEdit?: (nodeId: string) => void;
   onClone?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
