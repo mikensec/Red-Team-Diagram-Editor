@@ -204,6 +204,11 @@ export const Toolbar = ({
             Present
           </Button>
 
+          <Button onClick={onManageOrder} variant="outline" size="sm" disabled={!hasNodes} title="Manage presentation order">
+            <ListOrdered className="w-4 h-4 mr-2" />
+            Manage Order
+          </Button>
+
           <div className="w-px h-6 bg-border" />
 
           <Button onClick={toggleNeonMode} variant="outline" size="sm" title={neonMode ? "Disable neon mode" : "Enable neon mode"}>
