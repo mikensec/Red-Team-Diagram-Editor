@@ -13,6 +13,8 @@ import { Label } from '@/components/ui/label';
 import { IconPicker } from './IconPicker';
 import { ColorPicker } from './ColorPicker';
 import { NodeData } from '@/types/Diagram';
+import { INPUT_LIMITS, validateLength } from '@/utils/validation';
+import { useToast } from '@/hooks/use-toast';
 
 interface AddNodeDialogProps {
   open: boolean;
@@ -24,12 +26,24 @@ export const AddNodeDialog = ({ open, onOpenChange, onAddNode }: AddNodeDialogPr
   const [label, setLabel] = useState('');
   const [icon, setIcon] = useState('Shield');
   const [color, setColor] = useState('#3b82f6');
+  const { toast } = useToast();
 
   const handleSubmit = () => {
-    if (!label.trim()) return;
+    const trimmedLabel = label.trim();
+    if (!trimmedLabel) return;
+    
+    // Validate label length
+    if (!validateLength(trimmedLabel, INPUT_LIMITS.NODE_LABEL)) {
+      toast({
+        title: 'Label too long',
+        description: `Label must be less than ${INPUT_LIMITS.NODE_LABEL} characters`,
+        variant: 'destructive',
+      });
+      return;
+    }
     
     onAddNode({
-      label: label.trim(),
+      label: trimmedLabel,
       icon,
       color,
     });
@@ -65,8 +79,12 @@ export const AddNodeDialog = ({ open, onOpenChange, onAddNode }: AddNodeDialogPr
               onChange={(e) => setLabel(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="e.g., Initial Access, Lateral Movement"
+              maxLength={INPUT_LIMITS.NODE_LABEL}
               autoFocus
             />
+            <p className="text-xs text-muted-foreground">
+              {label.length}/{INPUT_LIMITS.NODE_LABEL} characters
+            </p>
           </div>
           <IconPicker value={icon} onChange={setIcon} />
           <ColorPicker value={color} onChange={setColor} />

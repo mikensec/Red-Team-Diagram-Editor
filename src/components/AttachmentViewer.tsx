@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Attachment } from '@/types/Diagram';
 import { ChevronLeft, ChevronRight, ExternalLink, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { isValidUrl } from '@/utils/validation';
+import { useToast } from '@/hooks/use-toast';
 
 interface AttachmentViewerProps {
   attachments: Attachment[];
@@ -24,6 +26,7 @@ export const AttachmentViewer = ({
   onOpenChange,
 }: AttachmentViewerProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const { toast } = useToast();
   
   const currentAttachment = attachments[currentIndex];
   const hasMultiple = attachments.length > 1;
@@ -40,6 +43,22 @@ export const AttachmentViewer = ({
     if (e.key === 'ArrowLeft') handlePrevious();
     if (e.key === 'ArrowRight') handleNext();
     if (e.key === 'Escape') onOpenChange(false);
+  };
+
+  const handleOpenLink = () => {
+    if (!currentAttachment.url) return;
+    
+    // Validate URL before opening for security
+    if (!isValidUrl(currentAttachment.url)) {
+      toast({
+        title: 'Invalid URL',
+        description: 'This URL cannot be opened for security reasons. Only http://, https://, and mailto: links are supported.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    window.open(currentAttachment.url, '_blank', 'noopener,noreferrer');
   };
 
   if (!currentAttachment) return null;
@@ -74,7 +93,7 @@ export const AttachmentViewer = ({
                 <p className="font-mono text-sm break-all">{currentAttachment.url}</p>
               </div>
               <Button
-                onClick={() => window.open(currentAttachment.url, '_blank')}
+                onClick={handleOpenLink}
                 className="w-full"
               >
                 <ExternalLink className="w-4 h-4 mr-2" />

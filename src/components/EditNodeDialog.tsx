@@ -16,6 +16,8 @@ import { ColorPicker } from './ColorPicker';
 import { AttachmentManager } from './AttachmentManager';
 import { NodeData, Attachment } from '@/types/Diagram';
 import { Separator } from '@/components/ui/separator';
+import { INPUT_LIMITS, validateLength } from '@/utils/validation';
+import { useToast } from '@/hooks/use-toast';
 
 interface EditNodeDialogProps {
   open: boolean;
@@ -30,6 +32,7 @@ export const EditNodeDialog = ({ open, onOpenChange, onSave, initialData }: Edit
   const [color, setColor] = useState('#3b82f6');
   const [description, setDescription] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (initialData) {
@@ -42,13 +45,36 @@ export const EditNodeDialog = ({ open, onOpenChange, onSave, initialData }: Edit
   }, [initialData]);
 
   const handleSubmit = () => {
-    if (!label.trim()) return;
+    const trimmedLabel = label.trim();
+    const trimmedDescription = description.trim();
+    
+    if (!trimmedLabel) return;
+    
+    // Validate label length
+    if (!validateLength(trimmedLabel, INPUT_LIMITS.NODE_LABEL)) {
+      toast({
+        title: 'Label too long',
+        description: `Label must be less than ${INPUT_LIMITS.NODE_LABEL} characters`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate description length
+    if (trimmedDescription && !validateLength(trimmedDescription, INPUT_LIMITS.NODE_DESCRIPTION)) {
+      toast({
+        title: 'Description too long',
+        description: `Description must be less than ${INPUT_LIMITS.NODE_DESCRIPTION} characters`,
+        variant: 'destructive',
+      });
+      return;
+    }
     
     onSave({
-      label: label.trim(),
+      label: trimmedLabel,
       icon,
       color,
-      description: description.trim() || undefined,
+      description: trimmedDescription || undefined,
       attachments: attachments.length > 0 ? attachments : undefined,
     });
 
@@ -79,8 +105,12 @@ export const EditNodeDialog = ({ open, onOpenChange, onSave, initialData }: Edit
               onChange={(e) => setLabel(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="e.g., Initial Access, Lateral Movement"
+              maxLength={INPUT_LIMITS.NODE_LABEL}
               autoFocus
             />
+            <p className="text-xs text-muted-foreground">
+              {label.length}/{INPUT_LIMITS.NODE_LABEL} characters
+            </p>
           </div>
           
           <div className="space-y-2">
@@ -90,8 +120,12 @@ export const EditNodeDialog = ({ open, onOpenChange, onSave, initialData }: Edit
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a brief description..."
+              maxLength={INPUT_LIMITS.NODE_DESCRIPTION}
               rows={2}
             />
+            <p className="text-xs text-muted-foreground">
+              {description.length}/{INPUT_LIMITS.NODE_DESCRIPTION} characters
+            </p>
           </div>
 
           <IconPicker value={icon} onChange={setIcon} />

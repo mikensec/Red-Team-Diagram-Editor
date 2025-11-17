@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Paperclip, X, Link as LinkIcon, Image as ImageIcon, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { isValidUrl, INPUT_LIMITS, validateLength } from '@/utils/validation';
 
 interface AttachmentManagerProps {
   attachments: Attachment[];
@@ -93,13 +94,56 @@ export const AttachmentManager = ({ attachments, onChange }: AttachmentManagerPr
   };
 
   const handleAddLink = () => {
-    if (!linkUrl.trim()) return;
+    const trimmedUrl = linkUrl.trim();
+    const trimmedName = linkName.trim() || trimmedUrl;
+
+    if (!trimmedUrl) return;
+
+    // Validate URL length
+    if (!validateLength(trimmedUrl, INPUT_LIMITS.LINK_URL)) {
+      toast({
+        title: 'Invalid URL',
+        description: `URL must be less than ${INPUT_LIMITS.LINK_URL} characters`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate link name length
+    if (!validateLength(trimmedName, INPUT_LIMITS.LINK_NAME)) {
+      toast({
+        title: 'Invalid name',
+        description: `Name must be less than ${INPUT_LIMITS.LINK_NAME} characters`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate URL protocol for security
+    if (!isValidUrl(trimmedUrl)) {
+      toast({
+        title: 'Invalid URL',
+        description: 'Only http://, https://, and mailto: URLs are allowed',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check max attachments limit
+    if (attachments.length >= INPUT_LIMITS.MAX_ATTACHMENTS) {
+      toast({
+        title: 'Too many attachments',
+        description: `Maximum ${INPUT_LIMITS.MAX_ATTACHMENTS} attachments allowed per node`,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const newAttachment: Attachment = {
       id: `att-${Date.now()}`,
       type: 'link',
-      name: linkName.trim() || linkUrl,
-      url: linkUrl.trim(),
+      name: trimmedName,
+      url: trimmedUrl,
       createdAt: Date.now(),
     };
 
