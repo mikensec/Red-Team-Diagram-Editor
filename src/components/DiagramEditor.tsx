@@ -34,6 +34,7 @@ export const DiagramEditor = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedNodeData, setSelectedNodeData] = useState<{ id: string; data: NodeData } | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -76,6 +77,20 @@ export const DiagramEditor = () => {
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+
+  const handleEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+    if (isPresentationMode) return;
+    setSelectedEdgeId(edge.id);
+  }, [isPresentationMode]);
+
+  const handleDeleteEdge = useCallback((edgeId: string) => {
+    setEdges((eds) => eds.filter((e) => e.id !== edgeId));
+    setSelectedEdgeId(null);
+    toast({
+      title: 'Connection deleted',
+      description: 'Connection has been removed',
+    });
+  }, [setEdges, toast]);
 
   const handleEditNode = useCallback((nodeId: string) => {
     const node = nodes.find((n) => n.id === nodeId) as AttackNode;
@@ -452,6 +467,19 @@ export const DiagramEditor = () => {
     }));
   }, [nodes, isPresentationMode, currentPresentationIndex]);
 
+  // Add styling to edges to show selected state
+  const styledEdges = useMemo(() => {
+    return edges.map((edge) => ({
+      ...edge,
+      style: {
+        ...edge.style,
+        strokeWidth: edge.id === selectedEdgeId ? 3 : 2,
+        stroke: edge.id === selectedEdgeId ? 'hsl(var(--destructive))' : undefined,
+      },
+      animated: edge.id === selectedEdgeId,
+    }));
+  }, [edges, selectedEdgeId]);
+
   const backgroundStyle = getBackgroundStyle(bgSettings);
 
   return (
@@ -490,10 +518,12 @@ export const DiagramEditor = () => {
       <div className="absolute inset-0" style={{ zIndex: 10 }}>
         <ReactFlow
           nodes={presentationNodes}
-          edges={edges}
+          edges={styledEdges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onEdgeClick={handleEdgeClick}
+          onPaneClick={() => setSelectedEdgeId(null)}
           nodeTypes={nodeTypes}
           nodesDraggable={!isPresentationMode}
           nodesConnectable={!isPresentationMode}
@@ -527,6 +557,27 @@ export const DiagramEditor = () => {
           )}
         </ReactFlow>
       </div>
+
+      {/* Delete button for selected edge */}
+      {selectedEdgeId && !isPresentationMode && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg border-destructive/30">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">Connection selected</p>
+            <button
+              onClick={() => handleDeleteEdge(selectedEdgeId)}
+              className="px-3 py-1 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors text-sm font-medium"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => setSelectedEdgeId(null)}
+              className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors text-sm font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {isPresentationMode && (
         <PresentationControls
