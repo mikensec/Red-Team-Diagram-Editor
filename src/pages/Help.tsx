@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Plus, Edit, Copy, Trash2, Download, Upload, Paperclip, Link as LinkIcon, Image as ImageIcon, Presentation, ChevronRight, ChevronLeft, Maximize } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Copy, Trash2, Download, Upload, Paperclip, Link as LinkIcon, Image as ImageIcon, Presentation, ChevronRight, ChevronLeft, Maximize, Github } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Help = () => {
@@ -11,15 +11,25 @@ const Help = () => {
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Editor
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Help & Documentation</h1>
-            <p className="text-muted-foreground">Learn how to use the Red Team Diagram Editor</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" onClick={() => navigate('/')}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Editor
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Help & Documentation</h1>
+              <p className="text-muted-foreground">Learn how to use the Red Team Diagram Editor</p>
+            </div>
           </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => window.open('https://github.com/mikensec/red-team-canvas', '_blank')}
+          >
+            <Github className="w-4 h-4 mr-2" />
+            GitHub
+          </Button>
         </div>
 
         {/* Getting Started */}

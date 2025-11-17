@@ -8,6 +8,17 @@ A powerful, browser-based tool for creating and managing red team attack diagram
 
 **Live Demo:** [red.michaelnieto.com](https://red.michaelnieto.com)
 
+## 📸 Screenshots
+
+### Presentation Mode
+![Presentation Mode](public/images/presentationmode.gif)
+
+### Light Theme
+![Light Theme Example](public/images/example1.png)
+
+### Dark Theme with Custom Background
+![Dark Theme Example](public/images/example2.png)
+
 ## ✨ Features
 
 ### Core Functionality
