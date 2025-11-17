@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Plus, Edit, Copy, Trash2, Download, Upload, Paperclip, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Copy, Trash2, Download, Upload, Paperclip, Link as LinkIcon, Image as ImageIcon, Presentation, ChevronRight, ChevronLeft, Maximize } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Help = () => {
@@ -166,6 +166,81 @@ const Help = () => {
               <p className="text-sm">
                 <strong>Tip:</strong> You can move nodes by dragging them, and the connections will automatically 
                 adjust. Delete connections by selecting them and pressing Delete or Backspace.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Presentation Mode */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Presentation className="w-5 h-5" />
+              Presentation Mode
+            </CardTitle>
+            <CardDescription>Present your diagrams professionally</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Presentation mode provides a distraction-free view for presenting your attack diagrams to stakeholders, 
+              red team members, or during briefings. Navigate through nodes sequentially with smooth transitions and focus.
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Presentation className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Starting Presentation</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Click the "Present" button in the toolbar to enter presentation mode. The toolbar and controls 
+                    will hide, and the first node will be highlighted and centered.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <ChevronRight className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Navigation</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Use arrow keys (Left/Right or Up/Down) or the on-screen controls to navigate between nodes. 
+                    The focused node is highlighted while others are dimmed for clarity.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Maximize className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Fullscreen Mode</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Press 'F' or click the fullscreen button to toggle fullscreen for an immersive presentation 
+                    experience. Perfect for large displays and projectors.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-muted/50 p-3 rounded-lg border border-border">
+              <p className="text-sm font-medium mb-2">Keyboard Shortcuts:</p>
+              <ul className="text-sm space-y-1 text-muted-foreground">
+                <li><strong>Arrow Keys:</strong> Navigate between nodes (Right/Down = next, Left/Up = previous)</li>
+                <li><strong>Home:</strong> Jump to first node</li>
+                <li><strong>End:</strong> Jump to last node</li>
+                <li><strong>F:</strong> Toggle fullscreen mode</li>
+                <li><strong>Escape:</strong> Exit presentation mode</li>
+              </ul>
+            </div>
+
+            <div className="bg-blue-500/10 p-3 rounded-lg border border-blue-500/20">
+              <p className="text-sm text-blue-700 dark:text-blue-400">
+                <strong>Pro Tip:</strong> Organize your nodes in a logical sequence before presenting. 
+                Presentation mode navigates nodes in the order they appear in the diagram.
               </p>
             </div>
           </CardContent>
