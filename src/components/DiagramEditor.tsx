@@ -419,14 +419,14 @@ export const DiagramEditor = () => {
   const backgroundStyle = getBackgroundStyle(bgSettings);
 
   return (
-    <div className={`w-screen h-screen relative ${neonMode ? 'cyber-grid' : ''}`}>
+    <div className={`w-screen h-screen relative overflow-hidden ${neonMode && bgSettings.preset === 'none' ? 'cyber-grid' : ''}`}>
       {/* Custom background layer */}
       {backgroundStyle && (
         <>
-          <div style={backgroundStyle} />
+          <div style={backgroundStyle} className="pointer-events-none" />
           <div 
-            className="absolute inset-0 bg-background/60 z-0"
-            style={{ backdropFilter: 'blur(2px)' }}
+            className="absolute inset-0 bg-background/60 pointer-events-none"
+            style={{ backdropFilter: 'blur(2px)', zIndex: 1 }}
           />
         </>
       )}
@@ -466,15 +466,16 @@ export const DiagramEditor = () => {
         panOnScroll={isPresentationMode}
         fitView
         className="relative z-10"
+        style={{ background: 'transparent' }}
       >
-        <Background 
-          color={neonMode ? "hsl(180 100% 50% / 0.1)" : "hsl(var(--muted-foreground))"}
-          gap={neonMode ? 20 : 16}
-          size={neonMode ? 2 : 1}
-          style={{ 
-            backgroundColor: 'hsl(var(--background))',
-          }}
-        />
+        {/* Only show ReactFlow background if no custom background */}
+        {bgSettings.preset === 'none' && (
+          <Background 
+            color={neonMode ? "hsl(180 100% 50% / 0.1)" : "hsl(var(--muted-foreground))"}
+            gap={neonMode ? 20 : 16}
+            size={neonMode ? 2 : 1}
+          />
+        )}
         {!isPresentationMode && (
           <Controls className={neonMode ? "[&_button]:bg-card/90 [&_button]:border-primary/30 [&_button]:text-foreground [&_button:hover]:bg-card [&_button]:backdrop-blur-sm" : ""} />
         )}
