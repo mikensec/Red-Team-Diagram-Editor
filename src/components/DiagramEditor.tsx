@@ -18,13 +18,14 @@ import { Toolbar } from './Toolbar';
 import { AddNodeDialog } from './AddNodeDialog';
 import { EditNodeDialog } from './EditNodeDialog';
 import { PresentationControls } from './PresentationControls';
+import { PresentationOrderManager } from './PresentationOrderManager';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { useBackground, getBackgroundStyle } from '@/hooks/useBackground';
 import { saveAttachment, getAttachment, deleteNodeAttachments, clearAllAttachments } from '@/utils/indexedDB';
-import { Edit, Copy, Trash2 } from 'lucide-react';
+import { Edit, Copy, Trash2, Hash } from 'lucide-react';
 
 const initialNodes: AttackNode[] = [];
 const initialEdges: Edge[] = [];
@@ -40,6 +41,7 @@ export const DiagramEditor = () => {
   const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState<Node[]>([]);
+  const [orderManagerOpen, setOrderManagerOpen] = useState(false);
   const { toast } = useToast();
   const { fitView, getViewport } = useReactFlow();
   const { neonMode } = useNeonMode();
@@ -249,12 +251,79 @@ export const DiagramEditor = () => {
     });
   }, [setNodes, setEdges, toast]);
 
+  // Presentation order management
+  const presentationSortedNodes = useMemo(() => {
+    return (nodes as AttackNode[])
+      .filter(n => n.data.presentationOrder !== undefined)
+      .sort((a, b) => (a.data.presentationOrder || 0) - (b.data.presentationOrder || 0));
+  }, [nodes]);
+
+  const handleUpdateNodeOrder = useCallback((nodeId: string, order: number | undefined) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, presentationOrder: order } }
+          : node
+      )
+    );
+  }, [setNodes]);
+
+  const handleAutoOrder = useCallback(() => {
+    const sortedNodes = [...nodes].sort((a, b) => {
+      if (a.position.y !== b.position.y) {
+        return a.position.y - b.position.y;
+      }
+      return a.position.x - b.position.x;
+    });
+
+    setNodes((nds) =>
+      nds.map((node) => {
+        const index = sortedNodes.findIndex((n) => n.id === node.id);
+        return {
+          ...node,
+          data: { ...node.data, presentationOrder: index + 1 },
+        };
+      })
+    );
+
+    toast({
+      title: 'Auto-ordered',
+      description: 'Nodes ordered by position (top-to-bottom, left-to-right)',
+    });
+  }, [nodes, setNodes, toast]);
+
+  const handleQuickAssignOrder = useCallback(() => {
+    if (selectedNodes.length === 0) return;
+
+    const maxOrder = Math.max(
+      ...(nodes as AttackNode[]).map(n => n.data.presentationOrder || 0),
+      0
+    );
+
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (selectedNodes.find(sn => sn.id === node.id) && !node.data.presentationOrder) {
+          return {
+            ...node,
+            data: { ...node.data, presentationOrder: maxOrder + 1 },
+          };
+        }
+        return node;
+      })
+    );
+
+    toast({
+      title: 'Order assigned',
+      description: `Node added to presentation (order #${maxOrder + 1})`,
+    });
+  }, [selectedNodes, nodes, setNodes, toast]);
+
   // Presentation mode functions
   const handleStartPresentation = useCallback(() => {
-    if (nodes.length === 0) {
+    if (presentationSortedNodes.length === 0) {
       toast({
-        title: 'No nodes to present',
-        description: 'Add some nodes before starting presentation mode',
+        title: 'No presentation order set',
+        description: 'Use "Manage Order" to define which nodes to present and in what order',
         variant: 'destructive',
       });
       return;
@@ -263,10 +332,10 @@ export const DiagramEditor = () => {
     setIsPresentationMode(true);
     setCurrentPresentationIndex(0);
     
-    // Focus on first node
+    // Focus on first node in presentation order
     setTimeout(() => {
       fitView({
-        nodes: [{ id: nodes[0].id }], 
+        nodes: [{ id: presentationSortedNodes[0].id }],
         duration: 800, 
         padding: 0.3,
         maxZoom: 1.5,
@@ -277,7 +346,7 @@ export const DiagramEditor = () => {
       title: 'Presentation mode',
       description: 'Use arrow keys to navigate. Press Escape to exit.',
     });
-  }, [nodes, fitView, toast]);
+  }, [presentationSortedNodes, fitView, toast]);
 
   const handleExitPresentation = useCallback(() => {
     setIsPresentationMode(false);
@@ -289,30 +358,30 @@ export const DiagramEditor = () => {
   }, [isFullscreen, fitView]);
 
   const handleNextNode = useCallback(() => {
-    if (currentPresentationIndex < nodes.length - 1) {
+    if (currentPresentationIndex < presentationSortedNodes.length - 1) {
       const nextIndex = currentPresentationIndex + 1;
       setCurrentPresentationIndex(nextIndex);
       fitView({ 
-        nodes: [{ id: nodes[nextIndex].id }], 
+        nodes: [{ id: presentationSortedNodes[nextIndex].id }], 
         duration: 800, 
         padding: 0.3,
         maxZoom: 1.5,
       });
     }
-  }, [currentPresentationIndex, nodes, fitView]);
+  }, [currentPresentationIndex, presentationSortedNodes, fitView]);
 
   const handlePreviousNode = useCallback(() => {
     if (currentPresentationIndex > 0) {
       const prevIndex = currentPresentationIndex - 1;
       setCurrentPresentationIndex(prevIndex);
       fitView({ 
-        nodes: [{ id: nodes[prevIndex].id }], 
+        nodes: [{ id: presentationSortedNodes[prevIndex].id }], 
         duration: 800, 
         padding: 0.3,
         maxZoom: 1.5,
       });
     }
-  }, [currentPresentationIndex, nodes, fitView]);
+  }, [currentPresentationIndex, presentationSortedNodes, fitView]);
 
   const handleToggleFullscreen = useCallback(async () => {
     if (!document.fullscreenElement) {
@@ -511,6 +580,7 @@ export const DiagramEditor = () => {
           onImport={handleImport}
           onReset={handleReset}
           onStartPresentation={handleStartPresentation}
+          onManageOrder={() => setOrderManagerOpen(true)}
           hasNodes={nodes.length > 0}
         />
       )}
@@ -626,6 +696,13 @@ export const DiagramEditor = () => {
               <Copy className="w-3.5 h-3.5" />
             </button>
             <button
+              onClick={handleQuickAssignOrder}
+              className="p-1.5 hover:bg-accent rounded transition-colors"
+              title="Add to Presentation"
+            >
+              <Hash className="w-3.5 h-3.5" />
+            </button>
+            <button
               onClick={() => handleDeleteNode(selectedNode.id)}
               className="p-1.5 hover:bg-destructive/10 text-destructive rounded transition-colors"
               title="Delete"
@@ -639,16 +716,23 @@ export const DiagramEditor = () => {
       {isPresentationMode && (
         <PresentationControls
           currentIndex={currentPresentationIndex}
-          totalNodes={nodes.length}
+          totalNodes={presentationSortedNodes.length}
           onNext={handleNextNode}
           onPrevious={handlePreviousNode}
           onExit={handleExitPresentation}
           onToggleFullscreen={handleToggleFullscreen}
           isFullscreen={isFullscreen}
-          hasNext={currentPresentationIndex < nodes.length - 1}
+          hasNext={currentPresentationIndex < presentationSortedNodes.length - 1}
           hasPrevious={currentPresentationIndex > 0}
         />
       )}
+      <PresentationOrderManager
+        open={orderManagerOpen}
+        onOpenChange={setOrderManagerOpen}
+        nodes={nodes as AttackNode[]}
+        onUpdateOrder={handleUpdateNodeOrder}
+        onAutoOrder={handleAutoOrder}
+      />
     </div>
   );
 };
