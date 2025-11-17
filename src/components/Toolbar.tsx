@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation } from 'lucide-react';
 import { useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
@@ -9,9 +9,11 @@ interface ToolbarProps {
   onExport: () => void;
   onImport: (file: File) => void;
   onReset: () => void;
+  onStartPresentation: () => void;
+  hasNodes: boolean;
 }
 
-export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset }: ToolbarProps) => {
+export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPresentation, hasNodes }: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
@@ -65,6 +67,19 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset }: Toolbar
         <Button onClick={onReset} variant="destructive" size="sm">
           <Trash2 className="w-4 h-4 mr-2" />
           Reset
+        </Button>
+
+        <div className="w-px h-6 bg-border" />
+
+        <Button 
+          onClick={onStartPresentation} 
+          variant="default" 
+          size="sm"
+          disabled={!hasNodes}
+          title="Start presentation mode"
+        >
+          <Presentation className="w-4 h-4 mr-2" />
+          Present
         </Button>
 
         <div className="w-px h-6 bg-border" />
