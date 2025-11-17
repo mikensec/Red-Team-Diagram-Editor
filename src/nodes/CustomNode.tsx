@@ -12,8 +12,9 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
   
   const hasAttachments = data.attachments && data.attachments.length > 0;
   
-  // Add white outline for black/dark colors for visibility
+  // Add outline for black/dark colors and white for visibility
   const isVeryDark = data.color.toLowerCase() === '#000000' || data.color.toLowerCase() === '#000';
+  const isWhite = data.color.toLowerCase() === '#ffffff' || data.color.toLowerCase() === '#fff';
 
   const handleNodeClick = () => {
     if (hasAttachments) {
@@ -27,7 +28,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
         className="relative px-4 py-3 rounded-lg border-2 min-w-[180px] shadow-lg transition-all hover:shadow-xl bg-card"
         style={{
           borderColor: data.color,
-          boxShadow: isVeryDark ? `0 0 0 1px hsl(var(--border)), 0 10px 15px -3px rgb(0 0 0 / 0.1)` : undefined,
+          boxShadow: (isVeryDark || isWhite) ? `0 0 0 1px hsl(var(--border)), 0 10px 15px -3px rgb(0 0 0 / 0.1)` : undefined,
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
