@@ -16,7 +16,6 @@ import { CustomNode } from '@/nodes/CustomNode';
 import { Toolbar } from './Toolbar';
 import { AddNodeDialog } from './AddNodeDialog';
 import { EditNodeDialog } from './EditNodeDialog';
-import { NodeContextMenu } from './NodeContextMenu';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
@@ -29,7 +28,6 @@ export const DiagramEditor = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
   const [selectedNodeData, setSelectedNodeData] = useState<{ id: string; data: NodeData } | null>(null);
   const { toast } = useToast();
 
@@ -65,13 +63,58 @@ export const DiagramEditor = () => {
     [setEdges]
   );
 
+  const handleEditNode = useCallback((nodeId: string) => {
+    const node = nodes.find((n) => n.id === nodeId) as AttackNode;
+    if (node) {
+      setSelectedNodeData({ id: node.id, data: node.data });
+      setEditDialogOpen(true);
+    }
+  }, [nodes]);
+
+  const handleCloneNode = useCallback((nodeId: string) => {
+    const node = nodes.find((n) => n.id === nodeId) as AttackNode;
+    if (node) {
+      const newNode: AttackNode = {
+        ...node,
+        id: `node-${Date.now()}`,
+        position: {
+          x: node.position.x + 50,
+          y: node.position.y + 50,
+        },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      toast({
+        title: 'Node cloned',
+        description: `Cloned ${node.data.label} node`,
+      });
+    }
+  }, [nodes, setNodes, toast]);
+
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    setEdges((eds) => eds.filter((edge) => 
+      edge.source !== nodeId && edge.target !== nodeId
+    ));
+
+    toast({
+      title: 'Node deleted',
+      description: 'Node and its connections have been removed',
+    });
+  }, [setNodes, setEdges, toast]);
+
   const handleAddNode = useCallback(
     (data: NodeData) => {
       const newNode: AttackNode = {
         id: `node-${Date.now()}`,
         type: 'custom',
         position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
-        data,
+        data: {
+          ...data,
+          onEdit: handleEditNode,
+          onClone: handleCloneNode,
+          onDelete: handleDeleteNode,
+        },
       };
       setNodes((nds) => [...nds, newNode]);
       toast({
@@ -79,7 +122,7 @@ export const DiagramEditor = () => {
         description: `Added ${data.label} node`,
       });
     },
-    [setNodes, toast]
+    [setNodes, toast, handleEditNode, handleCloneNode, handleDeleteNode]
   );
 
   const handleExport = useCallback(() => {
@@ -121,27 +164,6 @@ export const DiagramEditor = () => {
     });
   }, [setNodes, setEdges, toast]);
 
-  const handleNodeContextMenu = useCallback(
-    (event: React.MouseEvent, node: Node) => {
-      event.preventDefault();
-      setContextMenu({
-        x: event.clientX,
-        y: event.clientY,
-        nodeId: node.id,
-      });
-    },
-    []
-  );
-
-  const handleEditNode = useCallback(() => {
-    if (!contextMenu) return;
-    
-    const node = nodes.find((n) => n.id === contextMenu.nodeId) as AttackNode;
-    if (node) {
-      setSelectedNodeData({ id: node.id, data: node.data });
-      setEditDialogOpen(true);
-    }
-  }, [contextMenu, nodes]);
 
   const handleSaveEdit = useCallback(
     (data: NodeData) => {
@@ -150,7 +172,15 @@ export const DiagramEditor = () => {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === selectedNodeData.id
-            ? { ...node, data }
+            ? { 
+                ...node, 
+                data: {
+                  ...data,
+                  onEdit: handleEditNode,
+                  onClone: handleCloneNode,
+                  onDelete: handleDeleteNode,
+                }
+              }
             : node
         )
       );
@@ -160,44 +190,23 @@ export const DiagramEditor = () => {
         description: 'Node properties have been updated',
       });
     },
-    [selectedNodeData, setNodes, toast]
+    [selectedNodeData, setNodes, toast, handleEditNode, handleCloneNode, handleDeleteNode]
   );
 
-  const handleCloneNode = useCallback(() => {
-    if (!contextMenu) return;
-
-    const node = nodes.find((n) => n.id === contextMenu.nodeId) as AttackNode;
-    if (node) {
-      const newNode: AttackNode = {
+  // Update handlers in existing nodes on mount
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
         ...node,
-        id: `node-${Date.now()}`,
-        position: {
-          x: node.position.x + 50,
-          y: node.position.y + 50,
+        data: {
+          ...node.data,
+          onEdit: handleEditNode,
+          onClone: handleCloneNode,
+          onDelete: handleDeleteNode,
         },
-      };
-
-      setNodes((nds) => [...nds, newNode]);
-      toast({
-        title: 'Node cloned',
-        description: `Cloned ${node.data.label} node`,
-      });
-    }
-  }, [contextMenu, nodes, setNodes, toast]);
-
-  const handleDeleteNode = useCallback(() => {
-    if (!contextMenu) return;
-
-    setNodes((nds) => nds.filter((node) => node.id !== contextMenu.nodeId));
-    setEdges((eds) => eds.filter((edge) => 
-      edge.source !== contextMenu.nodeId && edge.target !== contextMenu.nodeId
-    ));
-
-    toast({
-      title: 'Node deleted',
-      description: 'Node and its connections have been removed',
-    });
-  }, [contextMenu, setNodes, setEdges, toast]);
+      }))
+    );
+  }, [handleEditNode, handleCloneNode, handleDeleteNode, setNodes]);
 
   return (
     <div className="w-screen h-screen">
@@ -218,23 +227,12 @@ export const DiagramEditor = () => {
         onSave={handleSaveEdit}
         initialData={selectedNodeData?.data || null}
       />
-      {contextMenu && (
-        <NodeContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onEdit={handleEditNode}
-          onClone={handleCloneNode}
-          onDelete={handleDeleteNode}
-          onClose={() => setContextMenu(null)}
-        />
-      )}
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onNodeContextMenu={handleNodeContextMenu}
         nodeTypes={nodeTypes}
         fitView
       >
