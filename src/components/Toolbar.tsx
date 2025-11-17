@@ -65,7 +65,7 @@ export const Toolbar = ({
           <SheetContent side="left" className="w-72">
           <SheetHeader>
               <div className="flex items-center gap-3">
-                <img src="/icon-192x192.png" alt="Red Team Canvas" className="w-8 h-8" />
+                <img src="/icon-192x192.png" alt="Red Team Canvas" className="w-8 h-8 dark:invert" />
                 <SheetTitle>Red Team Canvas</SheetTitle>
               </div>
             </SheetHeader>
@@ -149,7 +149,7 @@ export const Toolbar = ({
       {/* Desktop Toolbar - Shows on large screens */}
       <div className={`absolute top-4 left-4 z-50 hidden lg:flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
         <div className="flex items-center gap-2">
-          <img src="/icon-192x192.png" alt="Red Team Canvas" className="w-6 h-6" />
+          <img src="/icon-192x192.png" alt="Red Team Canvas" className="w-6 h-6 dark:invert" />
           
           
           <div className="w-px h-6 bg-border mx-1" />
