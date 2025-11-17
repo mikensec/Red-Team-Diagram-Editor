@@ -64,16 +64,70 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Deep space black with slight blue tint */
-    --background: 222 47% 6%;
+    --background: 220 20% 12%;
     --foreground: 210 40% 98%;
 
-    /* Dark card with subtle glow */
-    --card: 222 40% 10%;
+    --card: 220 18% 15%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 40% 12%;
+    --popover: 220 20% 12%;
     --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 220 16% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 220 16% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 16% 25%;
+    --input: 220 16% 20%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.5rem;
+
+    /* Node type colors for attack stages */
+    --node-initial-access: 38 92% 50%;
+    --node-c2: 217 91% 60%;
+    --node-lateral: 271 81% 56%;
+    --node-execution: 0 84% 60%;
+    --node-privilege: 25 95% 53%;
+    --node-objective: 142 71% 45%;
+
+    --sidebar-background: 220 18% 15%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 220 16% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 220 16% 25%;
+    --sidebar-ring: 217 91% 60%;
+
+    /* Neon Cyber Colors - defined but not active by default */
+    --neon-cyan: 180 100% 50%;
+    --neon-purple: 271 91% 65%;
+    --neon-pink: 330 81% 60%;
+    --neon-blue: 217 91% 60%;
+    --neon-red: 0 84% 60%;
+  }
+
+  /* Neon Mode Overrides - Only active when data-neon="true" */
+  [data-neon="true"].dark {
+    /* Deep space black with slight blue tint */
+    --background: 222 47% 6%;
+    
+    /* Dark card with subtle glow */
+    --card: 222 40% 10%;
+
+    --popover: 222 40% 12%;
 
     /* Neon cyan primary */
     --primary: 180 100% 50%;
@@ -81,7 +135,6 @@ All colors MUST be HSL.
 
     /* Dark secondary with subtle color */
     --secondary: 222 35% 15%;
-    --secondary-foreground: 210 40% 98%;
 
     /* Muted dark tones */
     --muted: 222 30% 18%;
@@ -89,11 +142,9 @@ All colors MUST be HSL.
 
     /* Neon purple accent */
     --accent: 271 91% 65%;
-    --accent-foreground: 210 40% 98%;
 
     /* Neon pink destructive */
     --destructive: 330 81% 60%;
-    --destructive-foreground: 210 40% 98%;
 
     /* Subtle glowing borders */
     --border: 222 30% 25%;
@@ -102,29 +153,17 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Node type colors for attack stages - Neon themed */
-    --node-initial-access: 180 100% 50%; /* Cyan */
-    --node-c2: 217 91% 60%; /* Blue */
-    --node-lateral: 271 91% 65%; /* Purple */
-    --node-execution: 330 81% 60%; /* Pink */
-    --node-privilege: 38 92% 55%; /* Orange */
-    --node-objective: 142 71% 50%; /* Green */
+    /* Node type colors - Neon themed */
+    --node-initial-access: 180 100% 50%;
+    --node-c2: 217 91% 60%;
+    --node-lateral: 271 91% 65%;
+    --node-execution: 330 81% 60%;
+    --node-privilege: 38 92% 55%;
+    --node-objective: 142 71% 50%;
 
-    --sidebar-background: 222 40% 10%;
-    --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 180 100% 50%;
     --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 35% 15%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 30% 25%;
     --sidebar-ring: 180 100% 50%;
-
-    /* Neon Cyber Colors */
-    --neon-cyan: 180 100% 50%;
-    --neon-purple: 271 91% 65%;
-    --neon-pink: 330 81% 60%;
-    --neon-blue: 217 91% 60%;
-    --neon-red: 0 84% 60%;
   }
 }
 
@@ -137,45 +176,45 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 
-  /* Neon glow effects */
-  .neon-glow-cyan {
+  /* Neon glow effects - Only active when data-neon="true" */
+  [data-neon="true"] .neon-glow-cyan {
     box-shadow: 0 0 10px hsl(180 100% 50% / 0.5), 0 0 20px hsl(180 100% 50% / 0.3), 0 0 30px hsl(180 100% 50% / 0.1);
   }
 
-  .neon-glow-purple {
+  [data-neon="true"] .neon-glow-purple {
     box-shadow: 0 0 10px hsl(271 91% 65% / 0.5), 0 0 20px hsl(271 91% 65% / 0.3), 0 0 30px hsl(271 91% 65% / 0.1);
   }
 
-  .neon-glow-pink {
+  [data-neon="true"] .neon-glow-pink {
     box-shadow: 0 0 10px hsl(330 81% 60% / 0.5), 0 0 20px hsl(330 81% 60% / 0.3), 0 0 30px hsl(330 81% 60% / 0.1);
   }
 
-  .neon-glow-blue {
+  [data-neon="true"] .neon-glow-blue {
     box-shadow: 0 0 10px hsl(217 91% 60% / 0.5), 0 0 20px hsl(217 91% 60% / 0.3), 0 0 30px hsl(217 91% 60% / 0.1);
   }
 
-  .neon-border-cyan {
+  [data-neon="true"] .neon-border-cyan {
     border-color: hsl(180 100% 50%);
     box-shadow: 0 0 10px hsl(180 100% 50% / 0.4), inset 0 0 10px hsl(180 100% 50% / 0.2);
   }
 
-  .neon-border-purple {
+  [data-neon="true"] .neon-border-purple {
     border-color: hsl(271 91% 65%);
     box-shadow: 0 0 10px hsl(271 91% 65% / 0.4), inset 0 0 10px hsl(271 91% 65% / 0.2);
   }
 
-  .neon-border-pink {
+  [data-neon="true"] .neon-border-pink {
     border-color: hsl(330 81% 60%);
     box-shadow: 0 0 10px hsl(330 81% 60% / 0.4), inset 0 0 10px hsl(330 81% 60% / 0.2);
   }
 
   /* Neon text glow */
-  .neon-text {
+  [data-neon="true"] .neon-text {
     text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
   }
 
-  /* Cyber grid background */
-  .cyber-grid {
+  /* Cyber grid background - Only in neon mode */
+  [data-neon="true"] .cyber-grid {
     background-image: 
       linear-gradient(hsl(180 100% 50% / 0.03) 1px, transparent 1px),
       linear-gradient(90deg, hsl(180 100% 50% / 0.03) 1px, transparent 1px);

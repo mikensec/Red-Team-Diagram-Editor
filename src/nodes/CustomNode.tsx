@@ -4,10 +4,12 @@ import { Edit, Copy, Trash2, Paperclip } from 'lucide-react';
 import { AVAILABLE_ICONS } from '@/components/IconPicker';
 import { NodeData } from '@/types/Diagram';
 import { AttachmentViewer } from '@/components/AttachmentViewer';
+import { useNeonMode } from '@/hooks/useNeonMode';
 
 export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
   const [isHovered, setIsHovered] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const { neonMode } = useNeonMode();
   const IconComponent = AVAILABLE_ICONS.find((icon) => icon.name === data.icon)?.component;
   
   const hasAttachments = data.attachments && data.attachments.length > 0;
@@ -33,7 +35,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
       >
         {/* Hover action buttons */}
         {isHovered && (
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-1 bg-card border border-primary/50 rounded-md p-1 shadow-lg z-50 animate-fade-in neon-glow-cyan">
+          <div className={`absolute top-0 left-1/2 -translate-x-1/2 flex gap-1 bg-card rounded-md p-1 shadow-lg z-50 animate-fade-in border ${neonMode ? 'border-primary/50 neon-glow-cyan' : 'border-border'}`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -72,7 +74,9 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
           className="relative px-4 py-3 rounded-lg border-2 min-w-[180px] shadow-2xl transition-all hover:shadow-xl bg-card/90 backdrop-blur-sm"
           style={{
             borderColor: data.color,
-            boxShadow: `0 0 20px ${data.color}40, 0 0 40px ${data.color}20, inset 0 0 20px ${data.color}10`,
+            boxShadow: neonMode 
+              ? `0 0 20px ${data.color}40, 0 0 40px ${data.color}20, inset 0 0 20px ${data.color}10`
+              : undefined,
           }}
         >
           <Handle type="target" position={Position.Top} className="!bg-primary" />
@@ -80,7 +84,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
           {/* Attachment badge */}
           {hasAttachments && (
             <div 
-              className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:scale-110 transition-transform z-10 neon-glow-cyan"
+              className={`absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:scale-110 transition-transform z-10 ${neonMode ? 'neon-glow-cyan' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 setViewerOpen(true);
