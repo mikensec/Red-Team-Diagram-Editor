@@ -84,7 +84,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
           {/* Attachment badge */}
           {hasAttachments && (
             <div 
-              className={`absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:scale-110 transition-transform z-10 ${neonMode ? 'neon-glow-cyan' : ''}`}
+              className={`absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:scale-110 transition-transform z-10 pointer-events-auto ${neonMode ? 'neon-glow-cyan' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 setViewerOpen(true);
@@ -97,7 +97,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
 
           {/* Node content - horizontal layout */}
         <div 
-          className="flex items-center gap-3 cursor-pointer"
+          className={`flex items-center gap-3 pointer-events-auto ${hasAttachments ? 'cursor-pointer' : ''}`}
           onClick={handleNodeClick}
         >
           {IconComponent && (
@@ -114,7 +114,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
             )}
           </div>
           {hasAttachments && (
-            <Paperclip className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+            <Paperclip className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 animate-pulse" />
           )}
         </div>
         
