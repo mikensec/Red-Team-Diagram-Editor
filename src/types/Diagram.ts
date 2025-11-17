@@ -4,6 +4,9 @@ export interface NodeData {
   label: string;
   icon: string;
   color: string;
+  onEdit?: (nodeId: string) => void;
+  onClone?: (nodeId: string) => void;
+  onDelete?: (nodeId: string) => void;
 }
 
 export interface AttackNode extends Node {
