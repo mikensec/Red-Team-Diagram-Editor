@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { useBackground, getBackgroundStyle } from '@/hooks/useBackground';
 import { saveAttachment, getAttachment, deleteNodeAttachments, clearAllAttachments } from '@/utils/indexedDB';
+import { Edit, Copy, Trash2 } from 'lucide-react';
 
 const initialNodes: AttackNode[] = [];
 const initialEdges: Edge[] = [];
@@ -38,6 +39,7 @@ export const DiagramEditor = () => {
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [selectedNodes, setSelectedNodes] = useState<Node[]>([]);
   const { toast } = useToast();
   const { fitView, getViewport } = useReactFlow();
   const { neonMode } = useNeonMode();
@@ -77,6 +79,11 @@ export const DiagramEditor = () => {
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+
+  // Track selected nodes
+  const onSelectionChange = useCallback(({ nodes: selectedNodes }: { nodes: Node[] }) => {
+    setSelectedNodes(selectedNodes);
+  }, []);
 
   const handleEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
     if (isPresentationMode) return;
@@ -526,7 +533,11 @@ export const DiagramEditor = () => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onEdgeClick={handleEdgeClick}
-          onPaneClick={() => setSelectedEdgeId(null)}
+          onPaneClick={() => {
+            setSelectedEdgeId(null);
+            setSelectedNodes([]);
+          }}
+          onSelectionChange={onSelectionChange}
           nodeTypes={nodeTypes}
           nodesDraggable={!isPresentationMode}
           nodesConnectable={!isPresentationMode}
@@ -581,6 +592,49 @@ export const DiagramEditor = () => {
           </div>
         </div>
       )}
+
+      {/* Floating toolbar for selected node */}
+      {selectedNodes.length === 1 && !isPresentationMode && (() => {
+        const selectedNode = selectedNodes[0] as AttackNode;
+        const viewport = getViewport();
+        
+        // Calculate screen position from node position
+        const screenX = selectedNode.position.x * viewport.zoom + viewport.x;
+        const screenY = selectedNode.position.y * viewport.zoom + viewport.y;
+        
+        return (
+          <div
+            className={`absolute z-50 flex gap-1 bg-card/95 backdrop-blur-sm rounded-md p-1 shadow-lg border animate-fade-in ${neonMode ? 'border-primary/50 neon-glow-cyan' : 'border-border'}`}
+            style={{
+              left: `${screenX}px`,
+              top: `${screenY - 50}px`, // Position above the node
+              transform: 'translateX(-50%)',
+            }}
+          >
+            <button
+              onClick={() => handleEditNode(selectedNode.id)}
+              className="p-1.5 hover:bg-accent rounded transition-colors"
+              title="Edit"
+            >
+              <Edit className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => handleCloneNode(selectedNode.id)}
+              className="p-1.5 hover:bg-accent rounded transition-colors"
+              title="Clone"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => handleDeleteNode(selectedNode.id)}
+              className="p-1.5 hover:bg-destructive/10 text-destructive rounded transition-colors"
+              title="Delete"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        );
+      })()}
 
       {isPresentationMode && (
         <PresentationControls

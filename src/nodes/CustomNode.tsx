@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { Edit, Copy, Trash2, Paperclip } from 'lucide-react';
+import { Paperclip } from 'lucide-react';
 import { AVAILABLE_ICONS } from '@/components/IconPicker';
 import { NodeData } from '@/types/Diagram';
 import { AttachmentViewer } from '@/components/AttachmentViewer';
 import { useNeonMode } from '@/hooks/useNeonMode';
 
 export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const { neonMode } = useNeonMode();
   const IconComponent = AVAILABLE_ICONS.find((icon) => icon.name === data.icon)?.component;
@@ -26,51 +25,8 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
 
   return (
     <>
-      {/* Wrapper that includes button area for hover detection */}
+      {/* Main node container */}
       <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className="relative"
-        style={{ paddingTop: '44px' }}
-      >
-        {/* Hover action buttons - hidden in presentation mode */}
-        {isHovered && !data.isPresentationMode && (
-          <div className={`absolute top-0 left-1/2 -translate-x-1/2 flex gap-1 bg-card rounded-md p-1 shadow-lg z-50 animate-fade-in border ${neonMode ? 'border-primary/50 neon-glow-cyan' : 'border-border'}`}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                data.onEdit?.(id);
-              }}
-              className="p-1.5 hover:bg-accent rounded transition-colors"
-              title="Edit"
-            >
-              <Edit className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                data.onClone?.(id);
-              }}
-              className="p-1.5 hover:bg-accent rounded transition-colors"
-              title="Clone"
-            >
-              <Copy className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                data.onDelete?.(id);
-              }}
-              className="p-1.5 hover:bg-destructive/10 text-destructive rounded transition-colors"
-              title="Delete"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-
-        {/* Main node container */}
-        <div
           className="relative px-4 py-3 rounded-lg border min-w-[180px] shadow-2xl transition-all hover:shadow-xl bg-card/75 backdrop-blur-md"
           style={{
             borderColor: data.color,
@@ -120,7 +76,6 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
         
           <Handle type="source" position={Position.Bottom} className="!bg-primary" />
         </div>
-      </div>
 
       {/* Attachment Viewer */}
       {hasAttachments && (
