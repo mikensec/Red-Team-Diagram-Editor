@@ -17,6 +17,7 @@ const NodeDataSchema = z.object({
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid hex color'),
   description: z.string().max(500).optional(),
   attachments: z.array(AttachmentSchema).max(20).optional(),
+  presentationOrder: z.number().int().positive().optional(),
 });
 
 // ReactFlow node schema
