@@ -21,6 +21,7 @@ import { PresentationControls } from './PresentationControls';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
+import { useNeonMode } from '@/hooks/useNeonMode';
 import { saveAttachment, getAttachment, deleteNodeAttachments, clearAllAttachments } from '@/utils/indexedDB';
 
 const initialNodes: AttackNode[] = [];
@@ -37,6 +38,7 @@ export const DiagramEditor = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { toast } = useToast();
   const { fitView } = useReactFlow();
+  const { neonMode } = useNeonMode();
 
   const nodeTypes: NodeTypes = useMemo(
     () => ({
@@ -413,7 +415,7 @@ export const DiagramEditor = () => {
   }, [nodes, isPresentationMode, currentPresentationIndex]);
 
   return (
-    <div className="w-screen h-screen cyber-grid">
+    <div className={`w-screen h-screen ${neonMode ? 'cyber-grid' : ''}`}>
       {!isPresentationMode && (
         <Toolbar
           onAddNodeClick={() => setDialogOpen(true)}
@@ -451,22 +453,24 @@ export const DiagramEditor = () => {
         fitView
       >
         <Background 
-          color="hsl(180 100% 50% / 0.1)" 
-          gap={20}
-          size={2}
+          color={neonMode ? "hsl(180 100% 50% / 0.1)" : "hsl(var(--muted-foreground))"}
+          gap={neonMode ? 20 : 16}
+          size={neonMode ? 2 : 1}
           style={{ 
             backgroundColor: 'hsl(var(--background))',
           }}
         />
-        {!isPresentationMode && <Controls className="[&_button]:bg-card/90 [&_button]:border-primary/30 [&_button]:text-foreground [&_button:hover]:bg-card [&_button]:backdrop-blur-sm" />}
+        {!isPresentationMode && (
+          <Controls className={neonMode ? "[&_button]:bg-card/90 [&_button]:border-primary/30 [&_button]:text-foreground [&_button:hover]:bg-card [&_button]:backdrop-blur-sm" : ""} />
+        )}
         {!isPresentationMode && (
           <MiniMap
             nodeColor={(node) => {
               const nodeData = node.data as NodeData;
-              return nodeData?.color || 'hsl(180 100% 50%)';
+              return nodeData?.color || (neonMode ? 'hsl(180 100% 50%)' : '#3b82f6');
             }}
             maskColor="hsl(var(--background) / 0.8)"
-            className="!bg-card/90 !border-primary/30 backdrop-blur-sm"
+            className={neonMode ? "!bg-card/90 !border-primary/30 backdrop-blur-sm" : ""}
           />
         )}
       </ReactFlow>

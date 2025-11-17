@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap } from 'lucide-react';
 import { useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
+import { useNeonMode } from '@/hooks/useNeonMode';
 
 interface ToolbarProps {
   onAddNodeClick: () => void;
@@ -16,6 +17,7 @@ interface ToolbarProps {
 export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPresentation, hasNodes }: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
+  const { neonMode, toggleNeonMode } = useNeonMode();
   const navigate = useNavigate();
 
   const handleImportClick = () => {
@@ -35,7 +37,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
   };
 
   return (
-    <div className="absolute top-4 left-4 z-10 flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border border-primary/30 shadow-lg neon-glow-cyan">
+    <div className={`absolute top-4 left-4 z-10 flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
       <div className="flex items-center gap-2">
         <Button onClick={onAddNodeClick} variant="default" size="sm">
           <Plus className="w-4 h-4 mr-2" />
@@ -80,6 +82,12 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
         >
           <Presentation className="w-4 h-4 mr-2" />
           Present
+        </Button>
+
+        <div className="w-px h-6 bg-border" />
+
+        <Button onClick={toggleNeonMode} variant="outline" size="sm" title={neonMode ? "Disable neon mode" : "Enable neon mode"}>
+          <Zap className={`w-4 h-4 ${neonMode ? 'text-neon-cyan' : ''}`} />
         </Button>
 
         <div className="w-px h-6 bg-border" />
