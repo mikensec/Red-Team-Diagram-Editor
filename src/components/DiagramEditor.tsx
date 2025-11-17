@@ -9,11 +9,14 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   NodeTypes,
+  Node,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { CustomNode } from '@/nodes/CustomNode';
 import { Toolbar } from './Toolbar';
 import { AddNodeDialog } from './AddNodeDialog';
+import { EditNodeDialog } from './EditNodeDialog';
+import { NodeContextMenu } from './NodeContextMenu';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +28,9 @@ export const DiagramEditor = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
+  const [selectedNodeData, setSelectedNodeData] = useState<{ id: string; data: NodeData } | null>(null);
   const { toast } = useToast();
 
   const nodeTypes: NodeTypes = useMemo(
@@ -115,6 +121,84 @@ export const DiagramEditor = () => {
     });
   }, [setNodes, setEdges, toast]);
 
+  const handleNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      event.preventDefault();
+      setContextMenu({
+        x: event.clientX,
+        y: event.clientY,
+        nodeId: node.id,
+      });
+    },
+    []
+  );
+
+  const handleEditNode = useCallback(() => {
+    if (!contextMenu) return;
+    
+    const node = nodes.find((n) => n.id === contextMenu.nodeId) as AttackNode;
+    if (node) {
+      setSelectedNodeData({ id: node.id, data: node.data });
+      setEditDialogOpen(true);
+    }
+  }, [contextMenu, nodes]);
+
+  const handleSaveEdit = useCallback(
+    (data: NodeData) => {
+      if (!selectedNodeData) return;
+
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === selectedNodeData.id
+            ? { ...node, data }
+            : node
+        )
+      );
+
+      toast({
+        title: 'Node updated',
+        description: 'Node properties have been updated',
+      });
+    },
+    [selectedNodeData, setNodes, toast]
+  );
+
+  const handleCloneNode = useCallback(() => {
+    if (!contextMenu) return;
+
+    const node = nodes.find((n) => n.id === contextMenu.nodeId) as AttackNode;
+    if (node) {
+      const newNode: AttackNode = {
+        ...node,
+        id: `node-${Date.now()}`,
+        position: {
+          x: node.position.x + 50,
+          y: node.position.y + 50,
+        },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      toast({
+        title: 'Node cloned',
+        description: `Cloned ${node.data.label} node`,
+      });
+    }
+  }, [contextMenu, nodes, setNodes, toast]);
+
+  const handleDeleteNode = useCallback(() => {
+    if (!contextMenu) return;
+
+    setNodes((nds) => nds.filter((node) => node.id !== contextMenu.nodeId));
+    setEdges((eds) => eds.filter((edge) => 
+      edge.source !== contextMenu.nodeId && edge.target !== contextMenu.nodeId
+    ));
+
+    toast({
+      title: 'Node deleted',
+      description: 'Node and its connections have been removed',
+    });
+  }, [contextMenu, setNodes, setEdges, toast]);
+
   return (
     <div className="w-screen h-screen">
       <Toolbar
@@ -128,12 +212,29 @@ export const DiagramEditor = () => {
         onOpenChange={setDialogOpen}
         onAddNode={handleAddNode}
       />
+      <EditNodeDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSave={handleSaveEdit}
+        initialData={selectedNodeData?.data || null}
+      />
+      {contextMenu && (
+        <NodeContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onEdit={handleEditNode}
+          onClone={handleCloneNode}
+          onDelete={handleDeleteNode}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeContextMenu={handleNodeContextMenu}
         nodeTypes={nodeTypes}
         fitView
       >
