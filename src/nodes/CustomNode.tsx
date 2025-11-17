@@ -34,6 +34,13 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
         >
           <Handle type="target" position={Position.Top} className="!bg-primary" />
           
+          {/* Presentation Order badge */}
+          {data.presentationOrder !== undefined && (
+            <div className="absolute -top-2 -left-2 bg-secondary text-secondary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md z-10">
+              {data.presentationOrder}
+            </div>
+          )}
+          
           {/* Attachment badge */}
           {hasAttachments && (
             <div 
