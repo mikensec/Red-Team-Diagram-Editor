@@ -9,7 +9,6 @@ import { FontSettings } from './FontSettings';
 import { StorageMonitor } from './StorageMonitor';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
-
 interface ToolbarProps {
   onAddNodeClick: () => void;
   onExport: () => void;
@@ -18,18 +17,28 @@ interface ToolbarProps {
   onStartPresentation: () => void;
   hasNodes: boolean;
 }
-
-export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPresentation, hasNodes }: ToolbarProps) => {
+export const Toolbar = ({
+  onAddNodeClick,
+  onExport,
+  onImport,
+  onReset,
+  onStartPresentation,
+  hasNodes
+}: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { theme, setTheme } = useTheme();
-  const { neonMode, toggleNeonMode } = useNeonMode();
+  const {
+    theme,
+    setTheme
+  } = useTheme();
+  const {
+    neonMode,
+    toggleNeonMode
+  } = useNeonMode();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -37,18 +46,14 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
       e.target.value = '';
     }
   };
-
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
-
   const handleMobileAction = (action: () => void) => {
     action();
     setMobileMenuOpen(false);
   };
-
-  return (
-    <>
+  return <>
       {/* Mobile Menu - Shows on small screens */}
       <div className={`absolute top-4 left-4 z-50 lg:hidden bg-card/95 backdrop-blur-sm p-2 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -92,13 +97,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
 
               <Separator />
 
-              <Button 
-                onClick={() => handleMobileAction(onStartPresentation)} 
-                variant="default" 
-                size="sm"
-                disabled={!hasNodes}
-                className="w-full justify-start"
-              >
+              <Button onClick={() => handleMobileAction(onStartPresentation)} variant="default" size="sm" disabled={!hasNodes} className="w-full justify-start">
                 <Presentation className="w-4 h-4 mr-2" />
                 Present
               </Button>
@@ -129,17 +128,13 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
               <Separator />
 
               <Button onClick={() => handleMobileAction(toggleTheme)} variant="outline" size="sm" className="w-full justify-start">
-                {theme === 'dark' ? (
-                  <>
+                {theme === 'dark' ? <>
                     <Sun className="w-4 h-4 mr-2" />
                     Light Mode
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     <Moon className="w-4 h-4 mr-2" />
                     Dark Mode
-                  </>
-                )}
+                  </>}
               </Button>
 
               <Button onClick={() => handleMobileAction(() => navigate('/help'))} variant="outline" size="sm" className="w-full justify-start">
@@ -155,7 +150,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
       <div className={`absolute top-4 left-4 z-50 hidden lg:flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
         <div className="flex items-center gap-2">
           <img src="/icon-192x192.png" alt="Red Team Canvas" className="w-6 h-6" />
-          <span className="text-sm font-semibold text-foreground">Red Team Canvas</span>
+          
           
           <div className="w-px h-6 bg-border mx-1" />
           <Button onClick={onAddNodeClick} variant="default" size="sm">
@@ -175,13 +170,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
             Import
           </Button>
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleFileChange}
-            className="hidden"
-          />
+          <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" />
 
           <div className="w-px h-6 bg-border" />
 
@@ -196,13 +185,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
 
           <div className="w-px h-6 bg-border" />
 
-          <Button 
-            onClick={onStartPresentation} 
-            variant="default" 
-            size="sm"
-            disabled={!hasNodes}
-            title="Start presentation mode"
-          >
+          <Button onClick={onStartPresentation} variant="default" size="sm" disabled={!hasNodes} title="Start presentation mode">
             <Presentation className="w-4 h-4 mr-2" />
             Present
           </Button>
@@ -232,11 +215,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
           <div className="w-px h-6 bg-border" />
 
           <Button onClick={toggleTheme} variant="outline" size="sm" title="Toggle theme">
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4" />
-            ) : (
-              <Moon className="w-4 h-4" />
-            )}
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
 
           <div className="w-px h-6 bg-border" />
@@ -246,6 +225,5 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
           </Button>
         </div>
       </div>
-    </>
-  );
+    </>;
 };
