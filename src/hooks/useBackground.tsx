@@ -75,11 +75,11 @@ export const useBackground = () => {
 };
 
 // Background preset styles
-export const getBackgroundStyle = (settings: BackgroundSettings) => {
+export const getBackgroundStyle = (settings: BackgroundSettings): React.CSSProperties | null => {
   const baseStyle: React.CSSProperties = {
     position: 'absolute',
     inset: 0,
-    zIndex: 0,
+    pointerEvents: 'none',
   };
 
   if (settings.preset === 'none') {
