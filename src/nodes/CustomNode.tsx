@@ -24,34 +24,16 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
 
   return (
     <>
+      {/* Wrapper that includes button area for hover detection */}
       <div
-        className="relative px-4 py-3 rounded-lg border-2 min-w-[180px] shadow-lg transition-all hover:shadow-xl bg-card"
-        style={{
-          borderColor: data.color,
-          boxShadow: (isVeryDark || isWhite) ? `0 0 0 1px hsl(var(--border)), 0 10px 15px -3px rgb(0 0 0 / 0.1)` : undefined,
-        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        className="relative"
+        style={{ paddingTop: '44px' }}
       >
-        <Handle type="target" position={Position.Top} className="!bg-primary" />
-        
-        {/* Attachment badge */}
-        {hasAttachments && (
-          <div 
-            className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:scale-110 transition-transform z-10"
-            onClick={(e) => {
-              e.stopPropagation();
-              setViewerOpen(true);
-            }}
-            title="Click to view attachments"
-          >
-            {data.attachments!.length}
-          </div>
-        )}
-
         {/* Hover action buttons */}
         {isHovered && (
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex gap-1 bg-card border border-border rounded-md p-1 shadow-lg z-50">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-1 bg-card border border-border rounded-md p-1 shadow-lg z-50 animate-fade-in">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -85,7 +67,31 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
           </div>
         )}
 
-        {/* Node content - horizontal layout */}
+        {/* Main node container */}
+        <div
+          className="relative px-4 py-3 rounded-lg border-2 min-w-[180px] shadow-lg transition-all hover:shadow-xl bg-card"
+          style={{
+            borderColor: data.color,
+            boxShadow: (isVeryDark || isWhite) ? `0 0 0 1px hsl(var(--border)), 0 10px 15px -3px rgb(0 0 0 / 0.1)` : undefined,
+          }}
+        >
+          <Handle type="target" position={Position.Top} className="!bg-primary" />
+          
+          {/* Attachment badge */}
+          {hasAttachments && (
+            <div 
+              className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:scale-110 transition-transform z-10"
+              onClick={(e) => {
+                e.stopPropagation();
+                setViewerOpen(true);
+              }}
+              title="Click to view attachments"
+            >
+              {data.attachments!.length}
+            </div>
+          )}
+
+          {/* Node content - horizontal layout */}
         <div 
           className="flex items-center gap-3 cursor-pointer"
           onClick={handleNodeClick}
@@ -108,7 +114,8 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
           )}
         </div>
         
-        <Handle type="source" position={Position.Bottom} className="!bg-primary" />
+          <Handle type="source" position={Position.Bottom} className="!bg-primary" />
+        </div>
       </div>
 
       {/* Attachment Viewer */}
