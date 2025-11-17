@@ -15,6 +15,7 @@ export interface NodeData {
   color: string;
   description?: string;
   attachments?: Attachment[];
+  isPresentationMode?: boolean;
   onEdit?: (nodeId: string) => void;
   onClone?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
