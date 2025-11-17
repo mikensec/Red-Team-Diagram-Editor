@@ -252,12 +252,13 @@ export const DiagramEditor = () => {
       });
       return;
     }
+    setSelectedEdgeId(null); // Clear any selected edge
     setIsPresentationMode(true);
     setCurrentPresentationIndex(0);
     
     // Focus on first node
     setTimeout(() => {
-      fitView({ 
+      fitView({
         nodes: [{ id: nodes[0].id }], 
         duration: 800, 
         padding: 0.3,
@@ -453,15 +454,17 @@ export const DiagramEditor = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isPresentationMode, nodes, setEdges, handleDeleteNode]);
 
-  // Modify node styles for presentation mode
+  // Modify node styles for presentation mode and pass isPresentationMode to nodes
   const presentationNodes = useMemo(() => {
-    if (!isPresentationMode) return nodes;
-    
     return nodes.map((node, index) => ({
       ...node,
+      data: {
+        ...node.data,
+        isPresentationMode,
+      },
       style: {
         ...node.style,
-        opacity: index === currentPresentationIndex ? 1 : 0.4,
+        opacity: isPresentationMode && index !== currentPresentationIndex ? 0.4 : 1,
         transition: 'opacity 0.3s ease',
       },
     }));

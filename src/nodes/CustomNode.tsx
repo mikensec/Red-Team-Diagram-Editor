@@ -33,8 +33,8 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
         className="relative"
         style={{ paddingTop: '44px' }}
       >
-        {/* Hover action buttons */}
-        {isHovered && (
+        {/* Hover action buttons - hidden in presentation mode */}
+        {isHovered && !data.isPresentationMode && (
           <div className={`absolute top-0 left-1/2 -translate-x-1/2 flex gap-1 bg-card rounded-md p-1 shadow-lg z-50 animate-fade-in border ${neonMode ? 'border-primary/50 neon-glow-cyan' : 'border-border'}`}>
             <button
               onClick={(e) => {
