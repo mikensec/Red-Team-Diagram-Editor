@@ -19,6 +19,7 @@ import { EditNodeDialog } from './EditNodeDialog';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
+import { saveAttachment, getAttachment, deleteNodeAttachments, clearAllAttachments } from '@/utils/indexedDB';
 
 const initialNodes: AttackNode[] = [];
 const initialEdges: Edge[] = [];
@@ -40,15 +41,18 @@ export const DiagramEditor = () => {
 
   // Load diagram on mount
   useEffect(() => {
-    const diagram = loadDiagram();
-    if (diagram) {
-      setNodes(diagram.nodes || []);
-      setEdges(diagram.edges || []);
-      toast({
-        title: 'Diagram loaded',
-        description: 'Previous diagram restored from localStorage',
-      });
-    }
+    const loadDiagramAsync = async () => {
+      const diagram = await loadDiagram();
+      if (diagram) {
+        setNodes(diagram.nodes || []);
+        setEdges(diagram.edges || []);
+        toast({
+          title: 'Diagram loaded',
+          description: 'Previous diagram restored with attachments',
+        });
+      }
+    };
+    loadDiagramAsync();
   }, [setNodes, setEdges, toast]);
 
   // Auto-save on changes
@@ -71,27 +75,50 @@ export const DiagramEditor = () => {
     }
   }, [nodes]);
 
-  const handleCloneNode = useCallback((nodeId: string) => {
+  const handleCloneNode = useCallback(async (nodeId: string) => {
     const node = nodes.find((n) => n.id === nodeId) as AttackNode;
     if (node) {
+      const newNodeId = `node-${Date.now()}`;
       const newNode: AttackNode = {
         ...node,
-        id: `node-${Date.now()}`,
+        id: newNodeId,
         position: {
           x: node.position.x + 50,
           y: node.position.y + 50,
         },
+        data: {
+          ...node.data,
+          attachments: node.data.attachments ? [...node.data.attachments] : undefined,
+        },
       };
+
+      // Clone attachments to IndexedDB with new IDs
+      if (node.data.attachments) {
+        for (const attachment of node.data.attachments) {
+          if (attachment.type === 'image' && attachment.data) {
+            const newAttId = `att-${Date.now()}-${Math.random()}`;
+            await saveAttachment(newAttId, newNodeId, attachment.data);
+            // Update the attachment ID in the cloned node
+            const attIndex = newNode.data.attachments!.findIndex(a => a.id === attachment.id);
+            if (attIndex !== -1) {
+              newNode.data.attachments![attIndex].id = newAttId;
+            }
+          }
+        }
+      }
 
       setNodes((nds) => [...nds, newNode]);
       toast({
         title: 'Node cloned',
-        description: `Cloned ${node.data.label} node`,
+        description: `Cloned ${node.data.label} node with attachments`,
       });
     }
   }, [nodes, setNodes, toast]);
 
-  const handleDeleteNode = useCallback((nodeId: string) => {
+  const handleDeleteNode = useCallback(async (nodeId: string) => {
+    // Delete attachments from IndexedDB
+    await deleteNodeAttachments(nodeId);
+    
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     setEdges((eds) => eds.filter((edge) => 
       edge.source !== nodeId && edge.target !== nodeId
@@ -99,18 +126,30 @@ export const DiagramEditor = () => {
 
     toast({
       title: 'Node deleted',
-      description: 'Node and its connections have been removed',
+      description: 'Node and its attachments have been removed',
     });
   }, [setNodes, setEdges, toast]);
 
   const handleAddNode = useCallback(
-    (data: NodeData) => {
+    async (data: NodeData) => {
+      const nodeId = `node-${Date.now()}`;
+      
+      // Save image attachments to IndexedDB
+      if (data.attachments) {
+        for (const attachment of data.attachments) {
+          if (attachment.type === 'image' && attachment.data) {
+            await saveAttachment(attachment.id, nodeId, attachment.data);
+          }
+        }
+      }
+
       const newNode: AttackNode = {
-        id: `node-${Date.now()}`,
+        id: nodeId,
         type: 'custom',
         position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
         data: {
           ...data,
+          attachments: data.attachments,
           onEdit: handleEditNode,
           onClone: handleCloneNode,
           onDelete: handleDeleteNode,
@@ -154,20 +193,30 @@ export const DiagramEditor = () => {
     [setNodes, setEdges, toast]
   );
 
-  const handleReset = useCallback(() => {
+  const handleReset = useCallback(async () => {
+    await clearAllAttachments();
     setNodes([]);
     setEdges([]);
     localStorage.removeItem('red-team-diagram');
     toast({
       title: 'Diagram reset',
-      description: 'All nodes and edges cleared',
+      description: 'All nodes, edges, and attachments cleared',
     });
   }, [setNodes, setEdges, toast]);
 
 
   const handleSaveEdit = useCallback(
-    (data: NodeData) => {
+    async (data: NodeData) => {
       if (!selectedNodeData) return;
+
+      // Save new image attachments to IndexedDB
+      if (data.attachments) {
+        for (const attachment of data.attachments) {
+          if (attachment.type === 'image' && attachment.data) {
+            await saveAttachment(attachment.id, selectedNodeData.id, attachment.data);
+          }
+        }
+      }
 
       setNodes((nds) =>
         nds.map((node) =>
@@ -187,7 +236,7 @@ export const DiagramEditor = () => {
 
       toast({
         title: 'Node updated',
-        description: 'Node properties have been updated',
+        description: 'Node properties and attachments have been updated',
       });
     },
     [selectedNodeData, setNodes, toast, handleEditNode, handleCloneNode, handleDeleteNode]
