@@ -1,6 +1,8 @@
 import { Diagram } from '@/types/Diagram';
 import { saveAttachment, getAttachment, getAllAttachments } from './indexedDB';
 import { isValidUrl } from './validation';
+import { DiagramSchema } from './diagramSchema';
+import { z } from 'zod';
 
 const STORAGE_KEY = 'red-team-diagram';
 
@@ -73,35 +75,34 @@ export const importDiagram = (file: File): Promise<Diagram> => {
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
-        const diagram = JSON.parse(e.target?.result as string) as Diagram;
+        // Parse JSON
+        const rawData = JSON.parse(e.target?.result as string);
         
-        // Validate and sanitize imported data
-        if (!diagram.nodes || !Array.isArray(diagram.nodes)) {
-          reject(new Error('Invalid diagram format: missing nodes array'));
-          return;
+        // Validate against schema
+        let diagram: Diagram;
+        try {
+          diagram = DiagramSchema.parse(rawData) as Diagram;
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            // Format validation errors for user
+            const errorMessages = error.errors.map(err => 
+              `${err.path.join('.')}: ${err.message}`
+            ).join('; ');
+            reject(new Error(`Invalid diagram format: ${errorMessages}`));
+            return;
+          }
+          throw error;
         }
         
-        if (!diagram.edges || !Array.isArray(diagram.edges)) {
-          reject(new Error('Invalid diagram format: missing edges array'));
-          return;
-        }
-        
-        // Save image attachments to IndexedDB and validate link URLs
+        // Additional security validation for link URLs
         for (const node of diagram.nodes) {
           if (node.data.attachments) {
-            // Validate attachments array
-            if (!Array.isArray(node.data.attachments)) {
-              console.warn(`Invalid attachments format for node ${node.id}, skipping`);
-              node.data.attachments = [];
-              continue;
-            }
-
-            // Filter out invalid attachments
+            // Filter out attachments with invalid URLs
             node.data.attachments = node.data.attachments.filter((attachment) => {
               // Validate link URLs for security
               if (attachment.type === 'link') {
                 if (!attachment.url || !isValidUrl(attachment.url)) {
-                  console.warn(`Invalid or unsafe URL in attachment ${attachment.id}, removing`);
+                  console.warn(`Unsafe URL protocol in attachment ${attachment.id}, removing`);
                   return false;
                 }
               }
@@ -115,12 +116,23 @@ export const importDiagram = (file: File): Promise<Diagram> => {
               
               return true;
             });
+            
+            // Clean up empty attachments array
+            if (node.data.attachments.length === 0) {
+              node.data.attachments = undefined;
+            }
           }
         }
         
         resolve(diagram);
       } catch (error) {
-        reject(new Error('Invalid JSON file'));
+        if (error instanceof SyntaxError) {
+          reject(new Error('Invalid JSON file: file is not valid JSON'));
+        } else if (error instanceof Error) {
+          reject(error);
+        } else {
+          reject(new Error('Failed to import diagram'));
+        }
       }
     };
     reader.onerror = () => reject(new Error('Failed to read file'));
