@@ -35,7 +35,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
   };
 
   return (
-    <div className="absolute top-4 left-4 z-10 flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border border-border shadow-lg">
+    <div className="absolute top-4 left-4 z-10 flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border border-primary/30 shadow-lg neon-glow-cyan">
       <div className="flex items-center gap-2">
         <Button onClick={onAddNodeClick} variant="default" size="sm">
           <Plus className="w-4 h-4 mr-2" />
