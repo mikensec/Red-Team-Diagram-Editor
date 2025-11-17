@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun } from 'lucide-react';
 import { useRef } from 'react';
+import { useTheme } from 'next-themes';
 
 interface ToolbarProps {
   onAddNodeClick: () => void;
@@ -11,6 +12,7 @@ interface ToolbarProps {
 
 export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset }: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { theme, setTheme } = useTheme();
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -22,6 +24,10 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset }: Toolbar
       onImport(file);
       e.target.value = '';
     }
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   return (
@@ -57,6 +63,16 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset }: Toolbar
         <Button onClick={onReset} variant="destructive" size="sm">
           <Trash2 className="w-4 h-4 mr-2" />
           Reset
+        </Button>
+
+        <div className="w-px h-6 bg-border" />
+
+        <Button onClick={toggleTheme} variant="outline" size="sm" title="Toggle theme">
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4" />
+          ) : (
+            <Moon className="w-4 h-4" />
+          )}
         </Button>
       </div>
     </div>
