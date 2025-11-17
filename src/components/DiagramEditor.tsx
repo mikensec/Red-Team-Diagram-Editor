@@ -532,19 +532,29 @@ export const DiagramEditor = () => {
 
   // Modify node styles for presentation mode and pass isPresentationMode to nodes
   const presentationNodes = useMemo(() => {
-    return nodes.map((node, index) => ({
+    if (isPresentationMode && presentationSortedNodes.length > 0) {
+      const currentNodeId = presentationSortedNodes[currentPresentationIndex]?.id;
+      return nodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          isPresentationMode,
+        },
+        style: {
+          ...node.style,
+          opacity: node.id !== currentNodeId ? 0.4 : 1,
+          transition: 'opacity 0.3s ease',
+        },
+      }));
+    }
+    return nodes.map((node) => ({
       ...node,
       data: {
         ...node.data,
-        isPresentationMode,
-      },
-      style: {
-        ...node.style,
-        opacity: isPresentationMode && index !== currentPresentationIndex ? 0.4 : 1,
-        transition: 'opacity 0.3s ease',
+        isPresentationMode: false,
       },
     }));
-  }, [nodes, isPresentationMode, currentPresentationIndex]);
+  }, [nodes, isPresentationMode, currentPresentationIndex, presentationSortedNodes]);
 
   // Add styling to edges to show selected state
   const styledEdges = useMemo(() => {
