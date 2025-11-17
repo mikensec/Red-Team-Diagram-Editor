@@ -10,14 +10,15 @@ A powerful, browser-based tool for creating and managing red team attack diagram
 
 ## 📸 Screenshots
 
-### Presentation Mode
-![Presentation Mode](public/images/presentationmode.gif)
-
 ### Example Workflow
 ![Light Theme Example](public/images/example1.png)
 
 ### Custom Theme Options
-![Dark Theme Example](public/images/example2.png)
+![Theme Example](public/images/example2.png)
+![Dark Theme Example](public/images/example3.png)
+
+### Presentation Mode
+![Presentation Mode](public/images/presentationmode.gif)
 
 ## ✨ Features
 
