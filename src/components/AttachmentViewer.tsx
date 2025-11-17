@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,10 +7,11 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Attachment } from '@/types/Diagram';
-import { ChevronLeft, ChevronRight, ExternalLink, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Link as LinkIcon, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { isValidUrl } from '@/utils/validation';
 import { useToast } from '@/hooks/use-toast';
+import { getAttachment } from '@/utils/indexedDB';
 
 interface AttachmentViewerProps {
   attachments: Attachment[];
@@ -26,10 +27,60 @@ export const AttachmentViewer = ({
   onOpenChange,
 }: AttachmentViewerProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [loadedAttachments, setLoadedAttachments] = useState<Attachment[]>(attachments);
+  const [loadingImageId, setLoadingImageId] = useState<string | null>(null);
   const { toast } = useToast();
   
-  const currentAttachment = attachments[currentIndex];
+  const currentAttachment = loadedAttachments[currentIndex];
   const hasMultiple = attachments.length > 1;
+
+  // Lazy load image data when viewer opens or index changes
+  useEffect(() => {
+    const loadImageData = async () => {
+      if (!currentAttachment || currentAttachment.type !== 'image' || currentAttachment.data) {
+        return; // Already loaded or not an image
+      }
+
+      setLoadingImageId(currentAttachment.id);
+      try {
+        const data = await getAttachment(currentAttachment.id);
+        if (data) {
+          // Update the loaded attachments array with the image data
+          setLoadedAttachments(prev => 
+            prev.map(att => 
+              att.id === currentAttachment.id 
+                ? { ...att, data } 
+                : att
+            )
+          );
+        } else {
+          toast({
+            title: 'Image not found',
+            description: 'The image data could not be loaded.',
+            variant: 'destructive',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load image:', error);
+        toast({
+          title: 'Error loading image',
+          description: 'Failed to load image data from storage.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingImageId(null);
+      }
+    };
+
+    if (open) {
+      loadImageData();
+    }
+  }, [open, currentAttachment, toast]);
+
+  // Reset loaded attachments when attachments prop changes
+  useEffect(() => {
+    setLoadedAttachments(attachments);
+  }, [attachments]);
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : attachments.length - 1));
@@ -102,11 +153,23 @@ export const AttachmentViewer = ({
             </div>
           ) : (
             <div className="flex items-center justify-center bg-muted/30 rounded-lg overflow-hidden min-h-[300px] max-h-[60vh]">
-              <img
-                src={currentAttachment.data}
-                alt={currentAttachment.name}
-                className="max-w-full max-h-[60vh] object-contain"
-              />
+              {loadingImageId === currentAttachment.id ? (
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Loading image...</p>
+                </div>
+              ) : currentAttachment.data ? (
+                <img
+                  src={currentAttachment.data}
+                  alt={currentAttachment.name}
+                  className="max-w-full max-h-[60vh] object-contain"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Image not available</p>
+                </div>
+              )}
             </div>
           )}
 

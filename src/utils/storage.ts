@@ -21,19 +21,8 @@ export const loadDiagram = async (): Promise<Diagram | null> => {
     
     const diagram = JSON.parse(stored) as Diagram;
     
-    // Load image attachments from IndexedDB
-    for (const node of diagram.nodes) {
-      if (node.data.attachments) {
-        for (const attachment of node.data.attachments) {
-          if (attachment.type === 'image') {
-            const data = await getAttachment(attachment.id);
-            if (data) {
-              attachment.data = data;
-            }
-          }
-        }
-      }
-    }
+    // Don't load image data here - will be lazy loaded when viewed
+    // Image attachments will have metadata (id, name, type, createdAt) but no data field
     
     return diagram;
   } catch (error) {
