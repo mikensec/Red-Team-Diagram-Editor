@@ -10,12 +10,14 @@ import ReactFlow, {
   useEdgesState,
   NodeTypes,
   Node,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { CustomNode } from '@/nodes/CustomNode';
 import { Toolbar } from './Toolbar';
 import { AddNodeDialog } from './AddNodeDialog';
 import { EditNodeDialog } from './EditNodeDialog';
+import { PresentationControls } from './PresentationControls';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +32,11 @@ export const DiagramEditor = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedNodeData, setSelectedNodeData] = useState<{ id: string; data: NodeData } | null>(null);
+  const [isPresentationMode, setIsPresentationMode] = useState(false);
+  const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { toast } = useToast();
+  const { fitView } = useReactFlow();
 
   const nodeTypes: NodeTypes = useMemo(
     () => ({
@@ -204,6 +210,141 @@ export const DiagramEditor = () => {
     });
   }, [setNodes, setEdges, toast]);
 
+  // Presentation mode functions
+  const handleStartPresentation = useCallback(() => {
+    if (nodes.length === 0) {
+      toast({
+        title: 'No nodes to present',
+        description: 'Add some nodes before starting presentation mode',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsPresentationMode(true);
+    setCurrentPresentationIndex(0);
+    
+    // Focus on first node
+    setTimeout(() => {
+      fitView({ 
+        nodes: [{ id: nodes[0].id }], 
+        duration: 800, 
+        padding: 0.3,
+        maxZoom: 1.5,
+      });
+    }, 100);
+    
+    toast({
+      title: 'Presentation mode',
+      description: 'Use arrow keys to navigate. Press Escape to exit.',
+    });
+  }, [nodes, fitView, toast]);
+
+  const handleExitPresentation = useCallback(() => {
+    setIsPresentationMode(false);
+    setCurrentPresentationIndex(0);
+    if (isFullscreen && document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+    fitView({ duration: 800, padding: 0.1 });
+  }, [isFullscreen, fitView]);
+
+  const handleNextNode = useCallback(() => {
+    if (currentPresentationIndex < nodes.length - 1) {
+      const nextIndex = currentPresentationIndex + 1;
+      setCurrentPresentationIndex(nextIndex);
+      fitView({ 
+        nodes: [{ id: nodes[nextIndex].id }], 
+        duration: 800, 
+        padding: 0.3,
+        maxZoom: 1.5,
+      });
+    }
+  }, [currentPresentationIndex, nodes, fitView]);
+
+  const handlePreviousNode = useCallback(() => {
+    if (currentPresentationIndex > 0) {
+      const prevIndex = currentPresentationIndex - 1;
+      setCurrentPresentationIndex(prevIndex);
+      fitView({ 
+        nodes: [{ id: nodes[prevIndex].id }], 
+        duration: 800, 
+        padding: 0.3,
+        maxZoom: 1.5,
+      });
+    }
+  }, [currentPresentationIndex, nodes, fitView]);
+
+  const handleToggleFullscreen = useCallback(async () => {
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      await document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  }, []);
+
+  // Keyboard navigation for presentation mode
+  useEffect(() => {
+    if (!isPresentationMode) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'Escape':
+          e.preventDefault();
+          handleExitPresentation();
+          break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault();
+          handleNextNode();
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault();
+          handlePreviousNode();
+          break;
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          handleToggleFullscreen();
+          break;
+        case 'Home':
+          e.preventDefault();
+          setCurrentPresentationIndex(0);
+          fitView({ 
+            nodes: [{ id: nodes[0].id }], 
+            duration: 800, 
+            padding: 0.3,
+            maxZoom: 1.5,
+          });
+          break;
+        case 'End':
+          e.preventDefault();
+          setCurrentPresentationIndex(nodes.length - 1);
+          fitView({ 
+            nodes: [{ id: nodes[nodes.length - 1].id }], 
+            duration: 800, 
+            padding: 0.3,
+            maxZoom: 1.5,
+          });
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPresentationMode, handleExitPresentation, handleNextNode, handlePreviousNode, handleToggleFullscreen, nodes, fitView]);
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const handleSaveEdit = useCallback(
     async (data: NodeData) => {
@@ -257,14 +398,32 @@ export const DiagramEditor = () => {
     );
   }, [handleEditNode, handleCloneNode, handleDeleteNode, setNodes]);
 
+  // Modify node styles for presentation mode
+  const presentationNodes = useMemo(() => {
+    if (!isPresentationMode) return nodes;
+    
+    return nodes.map((node, index) => ({
+      ...node,
+      style: {
+        ...node.style,
+        opacity: index === currentPresentationIndex ? 1 : 0.4,
+        transition: 'opacity 0.3s ease',
+      },
+    }));
+  }, [nodes, isPresentationMode, currentPresentationIndex]);
+
   return (
     <div className="w-screen h-screen">
-      <Toolbar
-        onAddNodeClick={() => setDialogOpen(true)}
-        onExport={handleExport}
-        onImport={handleImport}
-        onReset={handleReset}
-      />
+      {!isPresentationMode && (
+        <Toolbar
+          onAddNodeClick={() => setDialogOpen(true)}
+          onExport={handleExport}
+          onImport={handleImport}
+          onReset={handleReset}
+          onStartPresentation={handleStartPresentation}
+          hasNodes={nodes.length > 0}
+        />
+      )}
       <AddNodeDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -277,24 +436,46 @@ export const DiagramEditor = () => {
         initialData={selectedNodeData?.data || null}
       />
       <ReactFlow
-        nodes={nodes}
+        nodes={presentationNodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
+        nodesDraggable={!isPresentationMode}
+        nodesConnectable={!isPresentationMode}
+        elementsSelectable={!isPresentationMode}
+        zoomOnScroll={!isPresentationMode}
+        panOnDrag={!isPresentationMode}
+        panOnScroll={isPresentationMode}
         fitView
       >
         <Background color="hsl(var(--muted-foreground))" gap={16} />
-        <Controls />
-        <MiniMap
-          nodeColor={(node) => {
-            const nodeData = node.data as NodeData;
-            return nodeData?.color || '#3b82f6';
-          }}
-          maskColor="hsl(var(--background) / 0.9)"
-        />
+        {!isPresentationMode && <Controls />}
+        {!isPresentationMode && (
+          <MiniMap
+            nodeColor={(node) => {
+              const nodeData = node.data as NodeData;
+              return nodeData?.color || '#3b82f6';
+            }}
+            maskColor="hsl(var(--background) / 0.9)"
+          />
+        )}
       </ReactFlow>
+
+      {isPresentationMode && (
+        <PresentationControls
+          currentIndex={currentPresentationIndex}
+          totalNodes={nodes.length}
+          onNext={handleNextNode}
+          onPrevious={handlePreviousNode}
+          onExit={handleExitPresentation}
+          onToggleFullscreen={handleToggleFullscreen}
+          isFullscreen={isFullscreen}
+          hasNext={currentPresentationIndex < nodes.length - 1}
+          hasPrevious={currentPresentationIndex > 0}
+        />
+      )}
     </div>
   );
 };
