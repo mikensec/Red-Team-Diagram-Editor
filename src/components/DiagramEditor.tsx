@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { useBackground, getBackgroundStyle } from '@/hooks/useBackground';
 import { saveAttachment, getAttachment, deleteNodeAttachments, clearAllAttachments } from '@/utils/indexedDB';
-import { Edit, Copy, Trash2, Hash } from 'lucide-react';
+import { Edit, Copy, Trash2 } from 'lucide-react';
 
 const initialNodes: AttackNode[] = [];
 const initialEdges: Edge[] = [];
@@ -292,32 +292,6 @@ export const DiagramEditor = () => {
     });
   }, [nodes, setNodes, toast]);
 
-  const handleQuickAssignOrder = useCallback(() => {
-    if (selectedNodes.length === 0) return;
-
-    const maxOrder = Math.max(
-      ...(nodes as AttackNode[]).map(n => n.data.presentationOrder || 0),
-      0
-    );
-
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (selectedNodes.find(sn => sn.id === node.id) && !node.data.presentationOrder) {
-          return {
-            ...node,
-            data: { ...node.data, presentationOrder: maxOrder + 1 },
-          };
-        }
-        return node;
-      })
-    );
-
-    toast({
-      title: 'Order assigned',
-      description: `Node added to presentation (order #${maxOrder + 1})`,
-    });
-  }, [selectedNodes, nodes, setNodes, toast]);
-
   // Presentation mode functions
   const handleStartPresentation = useCallback(() => {
     if (presentationSortedNodes.length === 0) {
@@ -532,6 +506,8 @@ export const DiagramEditor = () => {
 
   // Modify node styles for presentation mode and pass isPresentationMode to nodes
   const presentationNodes = useMemo(() => {
+    const selectedNodeIds = new Set(selectedNodes.map(n => n.id));
+    
     if (isPresentationMode && presentationSortedNodes.length > 0) {
       const currentNodeId = presentationSortedNodes[currentPresentationIndex]?.id;
       return nodes.map((node) => ({
@@ -539,6 +515,7 @@ export const DiagramEditor = () => {
         data: {
           ...node.data,
           isPresentationMode,
+          isSelected: selectedNodeIds.has(node.id),
         },
         style: {
           ...node.style,
@@ -552,9 +529,10 @@ export const DiagramEditor = () => {
       data: {
         ...node.data,
         isPresentationMode: false,
+        isSelected: selectedNodeIds.has(node.id),
       },
     }));
-  }, [nodes, isPresentationMode, currentPresentationIndex, presentationSortedNodes]);
+  }, [nodes, isPresentationMode, currentPresentationIndex, presentationSortedNodes, selectedNodes]);
 
   // Add styling to edges to show selected state
   const styledEdges = useMemo(() => {
@@ -704,13 +682,6 @@ export const DiagramEditor = () => {
               title="Clone"
             >
               <Copy className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={handleQuickAssignOrder}
-              className="p-1.5 hover:bg-accent rounded transition-colors"
-              title="Add to Presentation"
-            >
-              <Hash className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => handleDeleteNode(selectedNode.id)}
