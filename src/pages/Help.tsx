@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Plus, Edit, Copy, Trash2, Download, Upload, Paperclip, Link as LinkIcon, Image as ImageIcon, Presentation, ChevronRight, ChevronLeft, Maximize, Github } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Copy, Trash2, Download, Upload, Paperclip, Link as LinkIcon, Image as ImageIcon, Presentation, ChevronRight, ChevronLeft, Maximize, Github, Contact } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Help = () => {
@@ -356,6 +356,9 @@ const Help = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg ring-2 ring-primary/20">
+                <Contact className="w-8 h-8 text-primary-foreground" />
+              </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-lg">Michael Nieto</h4>
                 <p className="text-sm text-muted-foreground mt-1">Red Team Attack Diagram Tool</p>
