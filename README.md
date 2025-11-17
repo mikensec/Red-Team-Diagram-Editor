@@ -1,4 +1,4 @@
-# Red Team Attack Diagram Tool
+![Red Team Diagram Editor](public/images/banner.png)
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Live Demo](https://img.shields.io/badge/demo-live-blue.svg)](https://red.michaelnieto.com)
