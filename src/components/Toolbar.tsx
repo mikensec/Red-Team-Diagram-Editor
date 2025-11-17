@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type } from 'lucide-react';
 import { useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { BackgroundSettings } from './BackgroundSettings';
+import { FontSettings } from './FontSettings';
 
 interface ToolbarProps {
   onAddNodeClick: () => void;
@@ -98,6 +99,14 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
             <ImageIcon className="w-4 h-4" />
           </Button>
         </BackgroundSettings>
+
+        <div className="w-px h-6 bg-border" />
+
+        <FontSettings>
+          <Button variant="outline" size="sm" title="Font settings">
+            <Type className="w-4 h-4" />
+          </Button>
+        </FontSettings>
 
         <div className="w-px h-6 bg-border" />
 
