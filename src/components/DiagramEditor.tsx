@@ -93,8 +93,8 @@ export const DiagramEditor = () => {
         ...node,
         id: newNodeId,
         position: {
-          x: node.position.x + 50,
-          y: node.position.y + 50,
+          x: node.position.x + 150,
+          y: node.position.y + 150,
         },
         data: {
           ...node.data,
