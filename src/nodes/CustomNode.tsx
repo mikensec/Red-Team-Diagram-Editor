@@ -13,15 +13,12 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
   
   const hasAttachments = data.attachments && data.attachments.length > 0;
   
+  // Get URL attachments for display
+  const urlAttachments = data.attachments?.filter(att => att.type === 'link') || [];
+  
   // Add outline for black/dark colors and white for visibility
   const isVeryDark = data.color.toLowerCase() === '#000000' || data.color.toLowerCase() === '#000';
   const isWhite = data.color.toLowerCase() === '#ffffff' || data.color.toLowerCase() === '#fff';
-
-  const handleNodeClick = () => {
-    if (hasAttachments) {
-      setViewerOpen(true);
-    }
-  };
 
   return (
     <>
@@ -51,28 +48,38 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
             </div>
           )}
 
-          {/* Node content - horizontal layout */}
-        <div 
-          className={`flex items-center gap-3 pointer-events-auto ${hasAttachments ? 'cursor-pointer' : ''}`}
-          onClick={handleNodeClick}
-        >
-          {IconComponent && (
-            <div className="flex-shrink-0">
-              <IconComponent className="w-5 h-5" style={{ color: data.color }} />
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="font-medium text-sm text-foreground">{data.label}</div>
-            {data.description && (
-              <div className="text-xs text-muted-foreground truncate mt-0.5">
-                {data.description}
+          {/* Node content - centered layout */}
+          <div className="flex flex-col items-center gap-2 pointer-events-auto text-center">
+            {IconComponent && (
+              <div className="flex-shrink-0">
+                <IconComponent className="w-5 h-5" style={{ color: data.color }} />
               </div>
             )}
+            <div className="w-full">
+              <div className="font-medium text-sm text-foreground">{data.label}</div>
+              {data.description && (
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {data.description}
+                </div>
+              )}
+              {urlAttachments.length > 0 && (
+                <div className="mt-1 space-y-0.5">
+                  {urlAttachments.map((att) => (
+                    <a
+                      key={att.id}
+                      href={att.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-xs text-primary hover:underline truncate"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {att.url}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          {hasAttachments && (
-            <Paperclip className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 animate-pulse" />
-          )}
-        </div>
         
           <Handle type="source" position={Position.Bottom} className="!bg-primary" />
         </div>
