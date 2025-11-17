@@ -425,8 +425,8 @@ export const DiagramEditor = () => {
         <>
           <div style={{ ...backgroundStyle, zIndex: 0 }} className="pointer-events-none" />
           <div 
-            className="absolute inset-0 bg-background/60 pointer-events-none"
-            style={{ backdropFilter: 'blur(2px)', zIndex: 1 }}
+            className="absolute inset-0 bg-background/10 pointer-events-none"
+            style={{ zIndex: 1 }}
           />
         </>
       )}
