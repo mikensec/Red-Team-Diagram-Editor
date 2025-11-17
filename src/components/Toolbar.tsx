@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { BackgroundSettings } from './BackgroundSettings';
 import { FontSettings } from './FontSettings';
+import { StorageMonitor } from './StorageMonitor';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 
@@ -120,6 +121,8 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
                 </Button>
               </FontSettings>
 
+              <StorageMonitor />
+
               <Separator />
 
               <Button onClick={() => handleMobileAction(toggleTheme)} variant="outline" size="sm" className="w-full justify-start">
@@ -172,6 +175,10 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
             onChange={handleFileChange}
             className="hidden"
           />
+
+          <div className="w-px h-6 bg-border" />
+
+          <StorageMonitor />
 
           <div className="w-px h-6 bg-border" />
 

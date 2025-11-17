@@ -38,7 +38,7 @@ export const DiagramEditor = () => {
   const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { toast } = useToast();
-  const { fitView } = useReactFlow();
+  const { fitView, getViewport } = useReactFlow();
   const { neonMode } = useNeonMode();
   const { settings: bgSettings } = useBackground();
 
@@ -161,10 +161,15 @@ export const DiagramEditor = () => {
         }
       }
 
+      // Get current viewport to position node in center of view
+      const viewport = getViewport();
+      const centerX = -viewport.x + (window.innerWidth / 2) / viewport.zoom;
+      const centerY = -viewport.y + (window.innerHeight / 2) / viewport.zoom;
+
       const newNode: AttackNode = {
         id: nodeId,
         type: 'custom',
-        position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
+        position: { x: centerX - 100, y: centerY - 50 }, // Offset slightly to center the node
         data: {
           ...data,
           attachments: data.attachments,
@@ -176,10 +181,10 @@ export const DiagramEditor = () => {
       setNodes((nds) => [...nds, newNode]);
       toast({
         title: 'Node added',
-        description: `Added ${data.label} node`,
+        description: `Added ${data.label} node in view`,
       });
     },
-    [setNodes, toast, handleEditNode, handleCloneNode, handleDeleteNode]
+    [setNodes, toast, handleEditNode, handleCloneNode, handleDeleteNode, getViewport]
   );
 
   const handleExport = useCallback(() => {
