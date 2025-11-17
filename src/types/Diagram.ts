@@ -1,18 +1,14 @@
 import { Node, Edge } from 'reactflow';
 
-export type NodeType = 
-  | 'initial-access'
-  | 'c2'
-  | 'lateral-movement'
-  | 'execution'
-  | 'privilege-escalation'
-  | 'objective';
+export interface NodeData {
+  label: string;
+  icon: string;
+  color: string;
+}
 
 export interface AttackNode extends Node {
-  type: NodeType;
-  data: {
-    label: string;
-  };
+  type: 'custom';
+  data: NodeData;
 }
 
 export interface Diagram {
@@ -20,11 +16,23 @@ export interface Diagram {
   edges: Edge[];
 }
 
-export const NODE_TYPES: { value: NodeType; label: string; color: string }[] = [
-  { value: 'initial-access', label: 'Initial Access', color: 'node-initial-access' },
-  { value: 'c2', label: 'C2', color: 'node-c2' },
-  { value: 'lateral-movement', label: 'Lateral Movement', color: 'node-lateral' },
-  { value: 'execution', label: 'Execution', color: 'node-execution' },
-  { value: 'privilege-escalation', label: 'Privilege Escalation', color: 'node-privilege' },
-  { value: 'objective', label: 'Objective', color: 'node-objective' },
+// Predefined color palette for quick selection
+export const PRESET_COLORS = [
+  { name: 'Red', value: '#ef4444' },
+  { name: 'Orange', value: '#f97316' },
+  { name: 'Amber', value: '#f59e0b' },
+  { name: 'Yellow', value: '#eab308' },
+  { name: 'Lime', value: '#84cc16' },
+  { name: 'Green', value: '#22c55e' },
+  { name: 'Emerald', value: '#10b981' },
+  { name: 'Teal', value: '#14b8a6' },
+  { name: 'Cyan', value: '#06b6d4' },
+  { name: 'Sky', value: '#0ea5e9' },
+  { name: 'Blue', value: '#3b82f6' },
+  { name: 'Indigo', value: '#6366f1' },
+  { name: 'Violet', value: '#8b5cf6' },
+  { name: 'Purple', value: '#a855f7' },
+  { name: 'Fuchsia', value: '#d946ef' },
+  { name: 'Pink', value: '#ec4899' },
+  { name: 'Rose', value: '#f43f5e' },
 ];
