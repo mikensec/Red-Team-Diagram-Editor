@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type } from 'lucide-react';
-import { useRef } from 'react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { BackgroundSettings } from './BackgroundSettings';
 import { FontSettings } from './FontSettings';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
 
 interface ToolbarProps {
   onAddNodeClick: () => void;
@@ -21,6 +23,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
   const { theme, setTheme } = useTheme();
   const { neonMode, toggleNeonMode } = useNeonMode();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -38,92 +41,197 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  const handleMobileAction = (action: () => void) => {
+    action();
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <div className={`absolute top-4 left-4 z-50 flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
-      <div className="flex items-center gap-2">
-        <Button onClick={onAddNodeClick} variant="default" size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Node
-        </Button>
+    <>
+      {/* Mobile Menu - Shows on small screens */}
+      <div className={`absolute top-4 left-4 z-50 lg:hidden bg-card/95 backdrop-blur-sm p-2 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Menu className="w-5 h-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-72">
+            <SheetHeader>
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            
+            <div className="flex flex-col gap-3 mt-6">
+              <Button onClick={() => handleMobileAction(onAddNodeClick)} variant="default" size="sm" className="w-full justify-start">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Node
+              </Button>
 
-        <div className="w-px h-6 bg-border" />
+              <Separator />
 
-        <Button onClick={onExport} variant="outline" size="sm">
-          <Download className="w-4 h-4 mr-2" />
-          Export
-        </Button>
+              <Button onClick={() => handleMobileAction(onExport)} variant="outline" size="sm" className="w-full justify-start">
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
 
-        <Button onClick={handleImportClick} variant="outline" size="sm">
-          <Upload className="w-4 h-4 mr-2" />
-          Import
-        </Button>
+              <Button onClick={() => handleMobileAction(handleImportClick)} variant="outline" size="sm" className="w-full justify-start">
+                <Upload className="w-4 h-4 mr-2" />
+                Import
+              </Button>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          onChange={handleFileChange}
-          className="hidden"
-        />
+              <Separator />
 
-        <div className="w-px h-6 bg-border" />
+              <Button onClick={() => handleMobileAction(onReset)} variant="destructive" size="sm" className="w-full justify-start">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Reset
+              </Button>
 
-        <Button onClick={onReset} variant="destructive" size="sm">
-          <Trash2 className="w-4 h-4 mr-2" />
-          Reset
-        </Button>
+              <Separator />
 
-        <div className="w-px h-6 bg-border" />
+              <Button 
+                onClick={() => handleMobileAction(onStartPresentation)} 
+                variant="default" 
+                size="sm"
+                disabled={!hasNodes}
+                className="w-full justify-start"
+              >
+                <Presentation className="w-4 h-4 mr-2" />
+                Present
+              </Button>
 
-        <Button 
-          onClick={onStartPresentation} 
-          variant="default" 
-          size="sm"
-          disabled={!hasNodes}
-          title="Start presentation mode"
-        >
-          <Presentation className="w-4 h-4 mr-2" />
-          Present
-        </Button>
+              <Separator />
 
-        <div className="w-px h-6 bg-border" />
+              <Button onClick={() => handleMobileAction(toggleNeonMode)} variant="outline" size="sm" className="w-full justify-start">
+                <Zap className={`w-4 h-4 mr-2 ${neonMode ? 'text-neon-cyan' : ''}`} />
+                {neonMode ? 'Disable' : 'Enable'} Neon Mode
+              </Button>
 
-        <Button onClick={toggleNeonMode} variant="outline" size="sm" title={neonMode ? "Disable neon mode" : "Enable neon mode"}>
-          <Zap className={`w-4 h-4 ${neonMode ? 'text-neon-cyan' : ''}`} />
-        </Button>
+              <BackgroundSettings>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <ImageIcon className="w-4 h-4 mr-2" />
+                  Background Settings
+                </Button>
+              </BackgroundSettings>
 
-        <div className="w-px h-6 bg-border" />
+              <FontSettings>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Type className="w-4 h-4 mr-2" />
+                  Font Settings
+                </Button>
+              </FontSettings>
 
-        <BackgroundSettings>
-          <Button variant="outline" size="sm" title="Background settings">
-            <ImageIcon className="w-4 h-4" />
-          </Button>
-        </BackgroundSettings>
+              <Separator />
 
-        <div className="w-px h-6 bg-border" />
+              <Button onClick={() => handleMobileAction(toggleTheme)} variant="outline" size="sm" className="w-full justify-start">
+                {theme === 'dark' ? (
+                  <>
+                    <Sun className="w-4 h-4 mr-2" />
+                    Light Mode
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-4 h-4 mr-2" />
+                    Dark Mode
+                  </>
+                )}
+              </Button>
 
-        <FontSettings>
-          <Button variant="outline" size="sm" title="Font settings">
-            <Type className="w-4 h-4" />
-          </Button>
-        </FontSettings>
-
-        <div className="w-px h-6 bg-border" />
-
-        <Button onClick={toggleTheme} variant="outline" size="sm" title="Toggle theme">
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4" />
-          ) : (
-            <Moon className="w-4 h-4" />
-          )}
-        </Button>
-
-        <div className="w-px h-6 bg-border" />
-
-        <Button onClick={() => navigate('/help')} variant="outline" size="sm" title="Help">
-          <HelpCircle className="w-4 h-4" />
-        </Button>
+              <Button onClick={() => handleMobileAction(() => navigate('/help'))} variant="outline" size="sm" className="w-full justify-start">
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Help
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
-    </div>
+
+      {/* Desktop Toolbar - Shows on large screens */}
+      <div className={`absolute top-4 left-4 z-50 hidden lg:flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
+        <div className="flex items-center gap-2">
+          <Button onClick={onAddNodeClick} variant="default" size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Node
+          </Button>
+
+          <div className="w-px h-6 bg-border" />
+
+          <Button onClick={onExport} variant="outline" size="sm">
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+
+          <Button onClick={handleImportClick} variant="outline" size="sm">
+            <Upload className="w-4 h-4 mr-2" />
+            Import
+          </Button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+
+          <div className="w-px h-6 bg-border" />
+
+          <Button onClick={onReset} variant="destructive" size="sm">
+            <Trash2 className="w-4 h-4 mr-2" />
+            Reset
+          </Button>
+
+          <div className="w-px h-6 bg-border" />
+
+          <Button 
+            onClick={onStartPresentation} 
+            variant="default" 
+            size="sm"
+            disabled={!hasNodes}
+            title="Start presentation mode"
+          >
+            <Presentation className="w-4 h-4 mr-2" />
+            Present
+          </Button>
+
+          <div className="w-px h-6 bg-border" />
+
+          <Button onClick={toggleNeonMode} variant="outline" size="sm" title={neonMode ? "Disable neon mode" : "Enable neon mode"}>
+            <Zap className={`w-4 h-4 ${neonMode ? 'text-neon-cyan' : ''}`} />
+          </Button>
+
+          <div className="w-px h-6 bg-border" />
+
+          <BackgroundSettings>
+            <Button variant="outline" size="sm" title="Background settings">
+              <ImageIcon className="w-4 h-4" />
+            </Button>
+          </BackgroundSettings>
+
+          <div className="w-px h-6 bg-border" />
+
+          <FontSettings>
+            <Button variant="outline" size="sm" title="Font settings">
+              <Type className="w-4 h-4" />
+            </Button>
+          </FontSettings>
+
+          <div className="w-px h-6 bg-border" />
+
+          <Button onClick={toggleTheme} variant="outline" size="sm" title="Toggle theme">
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+          </Button>
+
+          <div className="w-px h-6 bg-border" />
+
+          <Button onClick={() => navigate('/help')} variant="outline" size="sm" title="Help">
+            <HelpCircle className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </>
   );
 };
