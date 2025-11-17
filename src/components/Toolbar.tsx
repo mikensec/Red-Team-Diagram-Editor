@@ -9,6 +9,7 @@ import { FontSettings } from './FontSettings';
 import { StorageMonitor } from './StorageMonitor';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { VERSION } from '@/version';
 interface ToolbarProps {
   onAddNodeClick: () => void;
   onExport: () => void;
@@ -141,6 +142,12 @@ export const Toolbar = ({
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Help
               </Button>
+
+              <Separator />
+
+              <div className="text-center text-xs text-muted-foreground pt-2">
+                v{VERSION}
+              </div>
             </div>
           </SheetContent>
         </Sheet>

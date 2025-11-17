@@ -1,7 +1,8 @@
 {
   "name": "Red Team Canvas - Attack Diagram Tool",
   "short_name": "Red Team Canvas",
-  "description": "Offline-capable browser tool for creating red team attack diagrams",
+  "description": "Offline-capable browser tool for creating red team attack diagrams - v1.0.0",
+  "version": "1.0.0",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0A0A",

@@ -4,6 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Plus, Edit, Copy, Trash2, Download, Upload, Paperclip, Link as LinkIcon, Image as ImageIcon, Presentation, ChevronRight, ChevronLeft, Maximize, Github, Contact } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import banner from '@/assets/banner.png';
+import { VERSION } from '@/version';
 
 const Help = () => {
   const navigate = useNavigate();
@@ -383,11 +384,14 @@ const Help = () => {
         </Card>
 
         {/* Footer */}
-        <div className="text-center py-4">
+        <div className="text-center py-6 space-y-4">
           <Button onClick={() => navigate('/')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Return to Diagram Editor
           </Button>
+          <div className="text-xs text-muted-foreground">
+            Red Team Canvas v{VERSION}
+          </div>
         </div>
       </div>
     </div>
