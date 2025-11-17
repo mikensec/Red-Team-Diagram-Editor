@@ -1,5 +1,6 @@
 import { Diagram } from '@/types/Diagram';
 import { saveAttachment, getAttachment, getAllAttachments } from './indexedDB';
+import { isValidUrl } from './validation';
 
 const STORAGE_KEY = 'red-team-diagram';
 
@@ -74,14 +75,46 @@ export const importDiagram = (file: File): Promise<Diagram> => {
       try {
         const diagram = JSON.parse(e.target?.result as string) as Diagram;
         
-        // Save image attachments to IndexedDB
+        // Validate and sanitize imported data
+        if (!diagram.nodes || !Array.isArray(diagram.nodes)) {
+          reject(new Error('Invalid diagram format: missing nodes array'));
+          return;
+        }
+        
+        if (!diagram.edges || !Array.isArray(diagram.edges)) {
+          reject(new Error('Invalid diagram format: missing edges array'));
+          return;
+        }
+        
+        // Save image attachments to IndexedDB and validate link URLs
         for (const node of diagram.nodes) {
           if (node.data.attachments) {
-            for (const attachment of node.data.attachments) {
-              if (attachment.type === 'image' && attachment.data) {
-                await saveAttachment(attachment.id, node.id, attachment.data);
-              }
+            // Validate attachments array
+            if (!Array.isArray(node.data.attachments)) {
+              console.warn(`Invalid attachments format for node ${node.id}, skipping`);
+              node.data.attachments = [];
+              continue;
             }
+
+            // Filter out invalid attachments
+            node.data.attachments = node.data.attachments.filter((attachment) => {
+              // Validate link URLs for security
+              if (attachment.type === 'link') {
+                if (!attachment.url || !isValidUrl(attachment.url)) {
+                  console.warn(`Invalid or unsafe URL in attachment ${attachment.id}, removing`);
+                  return false;
+                }
+              }
+              
+              // Save valid image attachments to IndexedDB
+              if (attachment.type === 'image' && attachment.data) {
+                saveAttachment(attachment.id, node.id, attachment.data).catch((err) => {
+                  console.error(`Failed to save attachment ${attachment.id}:`, err);
+                });
+              }
+              
+              return true;
+            });
           }
         }
         
