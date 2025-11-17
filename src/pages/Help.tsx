@@ -339,6 +339,30 @@ const Help = () => {
           </CardContent>
         </Card>
 
+        {/* About */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Created By</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <h4 className="font-semibold text-lg">Michael Nieto</h4>
+                <p className="text-sm text-muted-foreground mt-1">Red Team Attack Diagram Tool</p>
+                <a 
+                  href="https://www.linkedin.com/in/nietomichael/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 mt-3 text-sm text-primary hover:underline"
+                >
+                  <LinkIcon className="w-4 h-4" />
+                  Connect on LinkedIn
+                </a>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Footer */}
         <div className="text-center py-4">
           <Button onClick={() => navigate('/')}>
