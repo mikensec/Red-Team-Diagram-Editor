@@ -199,6 +199,11 @@ export const Toolbar = ({
 
           <div className="w-px h-6 bg-border" />
 
+          <Button onClick={onManagePresentationOrder} variant="outline" size="sm" disabled={!hasNodes} title="Manage presentation order">
+            <ListOrdered className="w-4 h-4 mr-2" />
+            Order
+          </Button>
+
           <Button onClick={onStartPresentation} variant="default" size="sm" disabled={!hasNodes} title="Start presentation mode">
             <Presentation className="w-4 h-4 mr-2" />
             Present
