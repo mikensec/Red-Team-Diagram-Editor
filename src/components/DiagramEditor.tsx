@@ -18,13 +18,14 @@ import { Toolbar } from './Toolbar';
 import { AddNodeDialog } from './AddNodeDialog';
 import { EditNodeDialog } from './EditNodeDialog';
 import { PresentationControls } from './PresentationControls';
+import { PresentationOrderManager } from './PresentationOrderManager';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { useBackground, getBackgroundStyle } from '@/hooks/useBackground';
 import { saveAttachment, getAttachment, deleteNodeAttachments, clearAllAttachments } from '@/utils/indexedDB';
-import { Edit, Copy, Trash2 } from 'lucide-react';
+import { Edit, Copy, Trash2, Hash } from 'lucide-react';
 
 const initialNodes: AttackNode[] = [];
 const initialEdges: Edge[] = [];
@@ -40,6 +41,7 @@ export const DiagramEditor = () => {
   const [currentPresentationIndex, setCurrentPresentationIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState<Node[]>([]);
+  const [orderManagerOpen, setOrderManagerOpen] = useState(false);
   const { toast } = useToast();
   const { fitView, getViewport } = useReactFlow();
   const { neonMode } = useNeonMode();
