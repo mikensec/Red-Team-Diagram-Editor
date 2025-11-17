@@ -399,7 +399,7 @@ export const DiagramEditor = () => {
           e.preventDefault();
           setCurrentPresentationIndex(0);
           fitView({ 
-            nodes: [{ id: nodes[0].id }], 
+            nodes: [{ id: presentationSortedNodes[0].id }], 
             duration: 800, 
             padding: 0.3,
             maxZoom: 1.5,
@@ -407,9 +407,9 @@ export const DiagramEditor = () => {
           break;
         case 'End':
           e.preventDefault();
-          setCurrentPresentationIndex(nodes.length - 1);
+          setCurrentPresentationIndex(presentationSortedNodes.length - 1);
           fitView({ 
-            nodes: [{ id: nodes[nodes.length - 1].id }], 
+            nodes: [{ id: presentationSortedNodes[presentationSortedNodes.length - 1].id }], 
             duration: 800, 
             padding: 0.3,
             maxZoom: 1.5,
@@ -420,7 +420,7 @@ export const DiagramEditor = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPresentationMode, handleExitPresentation, handleNextNode, handlePreviousNode, handleToggleFullscreen, nodes, fitView]);
+  }, [isPresentationMode, handleExitPresentation, handleNextNode, handlePreviousNode, handleToggleFullscreen, presentationSortedNodes, fitView]);
 
   // Listen for fullscreen changes
   useEffect(() => {
@@ -557,6 +557,7 @@ export const DiagramEditor = () => {
           onImport={handleImport}
           onReset={handleReset}
           onStartPresentation={handleStartPresentation}
+          onManagePresentationOrder={() => setOrderManagerOpen(true)}
           hasNodes={nodes.length > 0}
         />
       )}
@@ -570,6 +571,13 @@ export const DiagramEditor = () => {
         onOpenChange={setEditDialogOpen}
         onSave={handleSaveEdit}
         initialData={selectedNodeData?.data || null}
+      />
+      <PresentationOrderManager
+        open={orderManagerOpen}
+        onOpenChange={setOrderManagerOpen}
+        nodes={nodes as AttackNode[]}
+        onUpdateNodeOrder={handleUpdateNodeOrder}
+        onAutoOrder={handleAutoOrder}
       />
       <div className="absolute inset-0" style={{ zIndex: 10 }}>
         <ReactFlow
