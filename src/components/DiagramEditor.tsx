@@ -22,6 +22,7 @@ import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
 import { useNeonMode } from '@/hooks/useNeonMode';
+import { useBackground, getBackgroundStyle } from '@/hooks/useBackground';
 import { saveAttachment, getAttachment, deleteNodeAttachments, clearAllAttachments } from '@/utils/indexedDB';
 
 const initialNodes: AttackNode[] = [];
@@ -39,6 +40,7 @@ export const DiagramEditor = () => {
   const { toast } = useToast();
   const { fitView } = useReactFlow();
   const { neonMode } = useNeonMode();
+  const { settings: bgSettings } = useBackground();
 
   const nodeTypes: NodeTypes = useMemo(
     () => ({
@@ -414,8 +416,20 @@ export const DiagramEditor = () => {
     }));
   }, [nodes, isPresentationMode, currentPresentationIndex]);
 
+  const backgroundStyle = getBackgroundStyle(bgSettings);
+
   return (
-    <div className={`w-screen h-screen ${neonMode ? 'cyber-grid' : ''}`}>
+    <div className={`w-screen h-screen relative ${neonMode ? 'cyber-grid' : ''}`}>
+      {/* Custom background layer */}
+      {backgroundStyle && (
+        <>
+          <div style={backgroundStyle} />
+          <div 
+            className="absolute inset-0 bg-background/60 z-0"
+            style={{ backdropFilter: 'blur(2px)' }}
+          />
+        </>
+      )}
       {!isPresentationMode && (
         <Toolbar
           onAddNodeClick={() => setDialogOpen(true)}
@@ -451,6 +465,7 @@ export const DiagramEditor = () => {
         panOnDrag={!isPresentationMode}
         panOnScroll={isPresentationMode}
         fitView
+        className="relative z-10"
       >
         <Background 
           color={neonMode ? "hsl(180 100% 50% / 0.1)" : "hsl(var(--muted-foreground))"}

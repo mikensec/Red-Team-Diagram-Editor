@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon } from 'lucide-react';
 import { useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
 import { useNeonMode } from '@/hooks/useNeonMode';
+import { BackgroundSettings } from './BackgroundSettings';
 
 interface ToolbarProps {
   onAddNodeClick: () => void;
@@ -89,6 +90,14 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
         <Button onClick={toggleNeonMode} variant="outline" size="sm" title={neonMode ? "Disable neon mode" : "Enable neon mode"}>
           <Zap className={`w-4 h-4 ${neonMode ? 'text-neon-cyan' : ''}`} />
         </Button>
+
+        <div className="w-px h-6 bg-border" />
+
+        <BackgroundSettings>
+          <Button variant="outline" size="sm" title="Background settings">
+            <ImageIcon className="w-4 h-4" />
+          </Button>
+        </BackgroundSettings>
 
         <div className="w-px h-6 bg-border" />
 
