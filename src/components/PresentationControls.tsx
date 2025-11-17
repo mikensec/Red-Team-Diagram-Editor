@@ -25,7 +25,7 @@ export const PresentationControls = ({
   hasPrevious,
 }: PresentationControlsProps) => {
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-card/95 backdrop-blur-sm px-6 py-4 rounded-lg border border-border shadow-2xl animate-fade-in">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-card/95 backdrop-blur-sm px-6 py-4 rounded-lg border border-primary/50 shadow-2xl animate-fade-in neon-glow-cyan">
       <Button
         onClick={onPrevious}
         variant="outline"

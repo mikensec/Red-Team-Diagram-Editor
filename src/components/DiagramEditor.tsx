@@ -413,7 +413,7 @@ export const DiagramEditor = () => {
   }, [nodes, isPresentationMode, currentPresentationIndex]);
 
   return (
-    <div className="w-screen h-screen">
+    <div className="w-screen h-screen cyber-grid">
       {!isPresentationMode && (
         <Toolbar
           onAddNodeClick={() => setDialogOpen(true)}
@@ -450,15 +450,23 @@ export const DiagramEditor = () => {
         panOnScroll={isPresentationMode}
         fitView
       >
-        <Background color="hsl(var(--muted-foreground))" gap={16} />
-        {!isPresentationMode && <Controls />}
+        <Background 
+          color="hsl(180 100% 50% / 0.1)" 
+          gap={20}
+          size={2}
+          style={{ 
+            backgroundColor: 'hsl(var(--background))',
+          }}
+        />
+        {!isPresentationMode && <Controls className="[&_button]:bg-card/90 [&_button]:border-primary/30 [&_button]:text-foreground [&_button:hover]:bg-card [&_button]:backdrop-blur-sm" />}
         {!isPresentationMode && (
           <MiniMap
             nodeColor={(node) => {
               const nodeData = node.data as NodeData;
-              return nodeData?.color || '#3b82f6';
+              return nodeData?.color || 'hsl(180 100% 50%)';
             }}
-            maskColor="hsl(var(--background) / 0.9)"
+            maskColor="hsl(var(--background) / 0.8)"
+            className="!bg-card/90 !border-primary/30 backdrop-blur-sm"
           />
         )}
       </ReactFlow>

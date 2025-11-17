@@ -33,7 +33,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
       >
         {/* Hover action buttons */}
         {isHovered && (
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-1 bg-card border border-border rounded-md p-1 shadow-lg z-50 animate-fade-in">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-1 bg-card border border-primary/50 rounded-md p-1 shadow-lg z-50 animate-fade-in neon-glow-cyan">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -69,10 +69,10 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
 
         {/* Main node container */}
         <div
-          className="relative px-4 py-3 rounded-lg border-2 min-w-[180px] shadow-lg transition-all hover:shadow-xl bg-card"
+          className="relative px-4 py-3 rounded-lg border-2 min-w-[180px] shadow-2xl transition-all hover:shadow-xl bg-card/90 backdrop-blur-sm"
           style={{
             borderColor: data.color,
-            boxShadow: (isVeryDark || isWhite) ? `0 0 0 1px hsl(var(--border)), 0 10px 15px -3px rgb(0 0 0 / 0.1)` : undefined,
+            boxShadow: `0 0 20px ${data.color}40, 0 0 40px ${data.color}20, inset 0 0 20px ${data.color}10`,
           }}
         >
           <Handle type="target" position={Position.Top} className="!bg-primary" />
@@ -80,7 +80,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
           {/* Attachment badge */}
           {hasAttachments && (
             <div 
-              className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:scale-110 transition-transform z-10"
+              className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:scale-110 transition-transform z-10 neon-glow-cyan"
               onClick={(e) => {
                 e.stopPropagation();
                 setViewerOpen(true);
