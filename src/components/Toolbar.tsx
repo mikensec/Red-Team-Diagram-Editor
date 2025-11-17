@@ -38,7 +38,7 @@ export const Toolbar = ({ onAddNodeClick, onExport, onImport, onReset, onStartPr
   };
 
   return (
-    <div className={`absolute top-4 left-4 z-10 flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
+    <div className={`absolute top-4 left-4 z-50 flex gap-2 bg-card/95 backdrop-blur-sm p-3 rounded-lg border shadow-lg ${neonMode ? 'border-primary/30 neon-glow-cyan' : 'border-border'}`}>
       <div className="flex items-center gap-2">
         <Button onClick={onAddNodeClick} variant="default" size="sm">
           <Plus className="w-4 h-4 mr-2" />
