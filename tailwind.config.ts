@@ -111,19 +111,6 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "glow-pulse": "glow-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
-      keyframes: {
-        ...this.theme?.extend?.keyframes,
-        "glow-pulse": {
-          "0%, 100%": {
-            opacity: "1",
-            filter: "brightness(1)",
-          },
-          "50%": {
-            opacity: "0.8",
-            filter: "brightness(1.2)",
-          },
-        },
-      },
     },
   },
   plugins: [require("tailwindcss-animate")],
