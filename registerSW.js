@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/Red-Team-Diagram-Editor/sw.js', { scope: '/Red-Team-Diagram-Editor/' })})}
