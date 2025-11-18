@@ -32,9 +32,18 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
               : undefined,
           }}
         >
-          <Handle type="target" position={Position.Top} className="!bg-primary" />
-          <Handle type="target" position={Position.Left} className="!bg-primary" />
-          <Handle type="source" position={Position.Right} className="!bg-primary" />
+          {/* Handles on all four sides - each can be both source and target */}
+          <Handle type="target" position={Position.Top} id="top" className="!bg-primary" />
+          <Handle type="source" position={Position.Top} id="top-source" className="!bg-primary" style={{ top: 0 }} />
+          
+          <Handle type="target" position={Position.Bottom} id="bottom" className="!bg-primary" />
+          <Handle type="source" position={Position.Bottom} id="bottom-source" className="!bg-primary" style={{ bottom: 0 }} />
+          
+          <Handle type="target" position={Position.Left} id="left" className="!bg-primary" />
+          <Handle type="source" position={Position.Left} id="left-source" className="!bg-primary" style={{ left: 0 }} />
+          
+          <Handle type="target" position={Position.Right} id="right" className="!bg-primary" />
+          <Handle type="source" position={Position.Right} id="right-source" className="!bg-primary" style={{ right: 0 }} />
           
           {/* Presentation order badge - only show when selected and NOT in presentation mode */}
           {data.presentationOrder && data.isSelected && !data.isPresentationMode && (
