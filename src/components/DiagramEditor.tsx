@@ -11,6 +11,7 @@ import ReactFlow, {
   NodeTypes,
   Node,
   useReactFlow,
+  ConnectionLineType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { CustomNode } from '@/nodes/CustomNode';
@@ -603,6 +604,11 @@ export const DiagramEditor = () => {
           zoomOnScroll={!isPresentationMode}
           panOnDrag={!isPresentationMode}
           panOnScroll={isPresentationMode}
+          connectionLineType={ConnectionLineType.SmoothStep}
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            animated: false,
+          }}
           fitView
           style={{ background: 'transparent' }}
         >
