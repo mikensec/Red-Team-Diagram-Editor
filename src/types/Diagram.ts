@@ -35,6 +35,7 @@ export interface Diagram {
 
 // Predefined color palette for quick selection
 export const PRESET_COLORS = [
+  { name: 'Transparent', value: 'transparent' },
   { name: 'Black', value: '#000000' },
   { name: 'White', value: '#ffffff' },
   { name: 'Red', value: '#ef4444' },

@@ -14,7 +14,10 @@ const AttachmentSchema = z.object({
 const NodeDataSchema = z.object({
   label: z.string().min(1).max(100),
   icon: z.string().min(1).max(50),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid hex color'),
+  color: z.string().refine(
+    val => val === 'transparent' || /^#[0-9A-Fa-f]{6}$/i.test(val),
+    'Invalid color'
+  ),
   description: z.string().max(500).optional(),
   attachments: z.array(AttachmentSchema).max(20).optional(),
   presentationOrder: z.number().int().positive().optional(),
