@@ -16,16 +16,18 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
   // Get URL attachments for display
   const urlAttachments = data.attachments?.filter(att => att.type === 'link') || [];
   
-  // Add outline for black/dark colors and white for visibility
-  const isVeryDark = data.color.toLowerCase() === '#000000' || data.color.toLowerCase() === '#000';
-  const isWhite = data.color.toLowerCase() === '#ffffff' || data.color.toLowerCase() === '#fff';
+  const isTransparent = data.color === 'transparent';
 
   return (
     <>
       {/* Main node container */}
       <div
-          className="relative px-4 py-3 rounded-lg border min-w-[180px] shadow-2xl transition-all hover:shadow-xl bg-card/75 backdrop-blur-md"
-          style={{
+          className={`relative px-4 py-3 rounded-lg min-w-[180px] transition-all ${
+            isTransparent 
+              ? 'hover:scale-105' 
+              : 'border shadow-2xl hover:shadow-xl bg-card/75 backdrop-blur-md'
+          }`}
+          style={isTransparent ? {} : {
             borderColor: data.color,
             boxShadow: neonMode 
               ? `0 0 20px ${data.color}40, 0 0 40px ${data.color}20, inset 0 0 20px ${data.color}10`
@@ -61,11 +63,22 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
           <div className="flex flex-col items-center gap-2 pointer-events-auto text-center">
             {IconComponent && (
               <div className="flex-shrink-0">
-                <IconComponent className="w-5 h-5" style={{ color: data.color }} />
+                <IconComponent 
+                  className="w-5 h-5" 
+                  style={{ 
+                    color: isTransparent ? 'hsl(var(--foreground))' : data.color,
+                    filter: isTransparent ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' : undefined
+                  }} 
+                />
               </div>
             )}
             <div className="w-full">
-              <div className="font-medium text-sm text-foreground">{data.label}</div>
+              <div 
+                className="font-medium text-sm text-foreground"
+                style={{ textShadow: isTransparent ? '0 1px 2px rgba(0,0,0,0.3)' : undefined }}
+              >
+                {data.label}
+              </div>
               {data.description && (
                 <div className="text-xs text-muted-foreground mt-0.5">
                   {data.description}
