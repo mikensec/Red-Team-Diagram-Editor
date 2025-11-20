@@ -35,6 +35,8 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
           }}
         >
           <Handle type="target" position={Position.Top} className="!bg-primary" />
+          <Handle type="target" position={Position.Left} className="!bg-primary" />
+          <Handle type="source" position={Position.Right} className="!bg-primary" />
           
           {/* Presentation order badge - only show when selected and NOT in presentation mode */}
           {data.presentationOrder && data.isSelected && !data.isPresentationMode && (
