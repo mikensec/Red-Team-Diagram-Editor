@@ -50,167 +50,256 @@ const generateHtmlContent = (diagram: Diagram): string => {
   <script src="https://unpkg.com/reactflow@11/dist/umd/index.js" crossorigin></script>
   <script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.min.js" crossorigin></script>
   <link href="https://unpkg.com/reactflow@11/dist/style.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --background: 220 20% 12%;
-      --foreground: 210 40% 98%;
-      --card: 220 18% 15%;
-      --card-foreground: 210 40% 98%;
-      --primary: 217 91% 60%;
-      --primary-foreground: 210 40% 98%;
-      --muted-foreground: 215 20% 65%;
-      --border: 220 16% 25%;
-    }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
     }
     #root { width: 100vw; height: 100vh; }
-    .react-flow { background: hsl(var(--background)); }
-    .react-flow__background { background: hsl(var(--background)); }
     
-    /* Node styles */
+    /* ReactFlow background */
+    .react-flow { background: #0f172a; }
+    .react-flow__background { background: #0f172a; }
+    
+    /* Node styles - high contrast dark theme */
     .node-container {
       position: relative;
-      padding: 12px 16px;
-      border-radius: 8px;
+      padding: 14px 18px;
+      border-radius: 10px;
       min-width: 180px;
-      transition: all 0.2s;
-      background: hsla(220, 18%, 15%, 0.75);
-      backdrop-filter: blur(12px);
-      border: 1px solid;
+      max-width: 280px;
+      transition: all 0.2s ease;
+      background: #1e293b;
+      border: 2px solid;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     .node-container.transparent {
-      background: transparent;
-      border: none;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px dashed #475569;
       box-shadow: none;
     }
-    .node-container:hover { transform: scale(1.02); }
+    .node-container:hover { 
+      transform: scale(1.03);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
     .node-content {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       text-align: center;
     }
     .node-icon { flex-shrink: 0; }
-    .node-icon svg { width: 20px; height: 20px; }
-    .node-label { font-weight: 500; font-size: 14px; }
-    .node-description { font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 2px; }
-    .node-links { margin-top: 4px; }
+    .node-icon svg { width: 24px; height: 24px; stroke-width: 2; }
+    .node-label { 
+      font-weight: 600; 
+      font-size: 14px; 
+      color: #f8fafc;
+      line-height: 1.3;
+    }
+    .node-description { 
+      font-size: 12px; 
+      color: #94a3b8; 
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .node-links { margin-top: 6px; }
     .node-link {
       display: block;
       font-size: 11px;
-      color: hsl(var(--primary));
+      color: #60a5fa;
       text-decoration: none;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 160px;
+      max-width: 200px;
+      padding: 2px 0;
     }
-    .node-link:hover { text-decoration: underline; }
+    .node-link:hover { 
+      text-decoration: underline;
+      color: #93c5fd;
+    }
     
     /* Attachment badge */
     .attachment-badge {
       position: absolute;
-      top: -8px;
-      right: -8px;
-      background: hsl(var(--primary));
-      color: hsl(var(--primary-foreground));
+      top: -10px;
+      right: -10px;
+      background: #3b82f6;
+      color: #ffffff;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: bold;
+      font-size: 12px;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.2s, background 0.2s;
       z-index: 10;
+      border: 2px solid #0f172a;
     }
-    .attachment-badge:hover { transform: scale(1.1); }
+    .attachment-badge:hover { 
+      transform: scale(1.15);
+      background: #2563eb;
+    }
     
     /* Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
       padding: 20px;
+      backdrop-filter: blur(4px);
     }
     .modal-content {
-      background: hsl(var(--card));
-      border-radius: 12px;
-      max-width: 90vw;
+      background: #1e293b;
+      border-radius: 16px;
+      max-width: 800px;
+      width: 90vw;
       max-height: 90vh;
       overflow: auto;
-      border: 1px solid hsl(var(--border));
+      border: 1px solid #334155;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
     }
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 20px;
-      border-bottom: 1px solid hsl(var(--border));
+      padding: 18px 24px;
+      border-bottom: 1px solid #334155;
+      background: #0f172a;
+      border-radius: 16px 16px 0 0;
     }
-    .modal-title { font-weight: 600; font-size: 18px; }
+    .modal-title { 
+      font-weight: 600; 
+      font-size: 18px;
+      color: #f8fafc;
+    }
     .modal-close {
-      background: transparent;
+      background: #334155;
       border: none;
-      color: hsl(var(--foreground));
+      color: #f8fafc;
       cursor: pointer;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.2s;
     }
-    .modal-close:hover { background: hsla(0,0%,100%,0.1); }
-    .modal-body { padding: 20px; }
+    .modal-close:hover { background: #475569; }
+    .modal-body { padding: 24px; }
     
     /* Attachment list */
-    .attachment-list { display: flex; flex-direction: column; gap: 12px; }
+    .attachment-list { display: flex; flex-direction: column; gap: 16px; }
     .attachment-item {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      padding: 12px;
-      background: hsla(0,0%,100%,0.05);
-      border-radius: 8px;
+      gap: 10px;
+      padding: 16px;
+      background: #0f172a;
+      border-radius: 12px;
+      border: 1px solid #334155;
     }
-    .attachment-name { font-weight: 500; font-size: 14px; }
+    .attachment-name { 
+      font-weight: 600; 
+      font-size: 14px;
+      color: #e2e8f0;
+    }
     .attachment-image {
       max-width: 100%;
-      max-height: 400px;
+      max-height: 500px;
       object-fit: contain;
-      border-radius: 6px;
+      border-radius: 8px;
+      background: #020617;
     }
     .attachment-link {
-      color: hsl(var(--primary));
+      color: #60a5fa;
       text-decoration: none;
       word-break: break-all;
+      font-size: 14px;
     }
-    .attachment-link:hover { text-decoration: underline; }
+    .attachment-link:hover { 
+      text-decoration: underline;
+      color: #93c5fd;
+    }
     
     /* Controls info */
     .controls-info {
       position: fixed;
       bottom: 20px;
       left: 20px;
-      background: hsl(var(--card));
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 12px;
-      color: hsl(var(--muted-foreground));
-      border: 1px solid hsl(var(--border));
+      background: #1e293b;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+      border: 1px solid #334155;
       z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    /* Title bar */
+    .title-bar {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: #1e293b;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .title-bar-icon {
+      width: 20px;
+      height: 20px;
+      color: #3b82f6;
     }
     
     /* Hide ReactFlow handles in viewer */
     .react-flow__handle { display: none; }
+    
+    /* ReactFlow controls styling */
+    .react-flow__controls {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .react-flow__controls-button {
+      background: #1e293b;
+      border: none;
+      color: #f8fafc;
+    }
+    .react-flow__controls-button:hover {
+      background: #334155;
+    }
+    .react-flow__controls-button svg {
+      fill: #f8fafc;
+    }
+    
+    /* MiniMap styling */
+    .react-flow__minimap {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 <body>
@@ -221,112 +310,94 @@ const generateHtmlContent = (diagram: Diagram): string => {
     const { useState, useCallback, createElement: h } = React;
     const { ReactFlow, Background, Controls, MiniMap } = window.ReactFlow;
     
-    // Icon mapping using Lucide
+    // Extended icon mapping using Lucide
     const iconMap = {
-      'Target': 'target',
       'Shield': 'shield',
-      'Key': 'key',
+      'ShieldAlert': 'shield-alert',
+      'ShieldCheck': 'shield-check',
+      'ShieldQuestion': 'shield-question',
+      'Zap': 'zap',
+      'Target': 'target',
+      'Crosshair': 'crosshair',
+      'Network': 'network',
       'Lock': 'lock',
       'Unlock': 'unlock',
-      'AlertTriangle': 'alert-triangle',
-      'Terminal': 'terminal',
-      'Server': 'server',
+      'Key': 'key',
+      'Fingerprint': 'fingerprint',
       'Database': 'database',
+      'Server': 'server',
       'Cloud': 'cloud',
-      'Wifi': 'wifi',
-      'Globe': 'globe',
+      'HardDrive': 'hard-drive',
+      'Terminal': 'terminal',
+      'Code': 'code',
+      'FileCode': 'file-code',
+      'Braces': 'braces',
+      'Binary': 'binary',
+      'Hash': 'hash',
+      'Bug': 'bug',
+      'AlertTriangle': 'alert-triangle',
+      'AlertCircle': 'alert-circle',
+      'Flag': 'flag',
+      'CheckCircle': 'check-circle',
+      'XCircle': 'x-circle',
       'Mail': 'mail',
-      'User': 'user',
-      'Users': 'users',
       'FileText': 'file-text',
       'Folder': 'folder',
-      'HardDrive': 'hard-drive',
-      'Cpu': 'cpu',
-      'Bug': 'bug',
-      'Zap': 'zap',
-      'Eye': 'eye',
-      'EyeOff': 'eye-off',
-      'Search': 'search',
       'Download': 'download',
       'Upload': 'upload',
-      'Code': 'code',
-      'Link': 'link',
-      'ExternalLink': 'external-link',
       'Settings': 'settings',
-      'Tool': 'wrench',
-      'Trash': 'trash-2',
-      'Plus': 'plus',
-      'Minus': 'minus',
-      'Check': 'check',
-      'X': 'x',
-      'ChevronRight': 'chevron-right',
-      'ChevronLeft': 'chevron-left',
-      'ArrowRight': 'arrow-right',
-      'ArrowLeft': 'arrow-left',
-      'Play': 'play',
-      'Pause': 'pause',
-      'RefreshCw': 'refresh-cw',
-      'RotateCcw': 'rotate-ccw',
-      'Copy': 'copy',
-      'Clipboard': 'clipboard',
-      'Calendar': 'calendar',
-      'Clock': 'clock',
-      'MapPin': 'map-pin',
-      'Phone': 'phone',
-      'Smartphone': 'smartphone',
-      'Monitor': 'monitor',
-      'Laptop': 'laptop',
-      'Printer': 'printer',
-      'Camera': 'camera',
-      'Image': 'image',
-      'Video': 'video',
-      'Music': 'music',
-      'Mic': 'mic',
-      'Volume2': 'volume-2',
-      'Bell': 'bell',
-      'MessageSquare': 'message-square',
-      'Send': 'send',
-      'Inbox': 'inbox',
-      'Archive': 'archive',
-      'Bookmark': 'bookmark',
-      'Star': 'star',
-      'Heart': 'heart',
-      'ThumbsUp': 'thumbs-up',
-      'Flag': 'flag',
-      'Award': 'award',
-      'Gift': 'gift',
-      'ShoppingCart': 'shopping-cart',
-      'CreditCard': 'credit-card',
-      'DollarSign': 'dollar-sign',
-      'Briefcase': 'briefcase',
-      'Building': 'building',
-      'Home': 'home',
-      'Truck': 'truck',
-      'Plane': 'plane',
-      'Navigation': 'navigation',
+      'Command': 'command',
+      'User': 'user',
+      'Users': 'users',
+      'Eye': 'eye',
+      'EyeOff': 'eye-off',
+      'Scan': 'scan',
+      'ScanLine': 'scan-line',
+      'Search': 'search',
+      'Filter': 'filter',
+      'Activity': 'activity',
+      'Globe': 'globe',
+      'Globe2': 'globe-2',
       'Compass': 'compass',
-      'Sun': 'sun',
-      'Moon': 'moon',
-      'CloudRain': 'cloud-rain',
-      'Thermometer': 'thermometer',
-      'Droplet': 'droplet',
-      'Wind': 'wind',
-      'Feather': 'feather',
-      'Leaf': 'leaf',
-      'Flower': 'flower',
-      'Mountain': 'mountain'
+      'Wifi': 'wifi',
+      'Radio': 'radio',
+      'Signal': 'signal',
+      'Radar': 'radar',
+      'Satellite': 'satellite',
+      'Router': 'router',
+      'Bluetooth': 'bluetooth',
+      'Cast': 'cast',
+      'Rss': 'rss',
+      'Webhook': 'webhook',
+      'Cpu': 'cpu',
+      'Boxes': 'boxes',
+      'Layers': 'layers',
+      'Package': 'package',
+      'PackageCheck': 'package-check',
+      'Smartphone': 'smartphone',
+      'Laptop': 'laptop',
+      'MonitorSmartphone': 'monitor-smartphone',
+      'Link': 'link',
+      'Unlink': 'unlink',
+      'ExternalLink': 'external-link',
+      'Share2': 'share-2',
+      'Navigation': 'navigation',
+      'Power': 'power',
+      'Plug': 'plug',
+      'Usb': 'usb',
+      'Chrome': 'chrome',
+      'GitBranch': 'git-branch',
+      'GitCommit': 'git-commit',
+      'Workflow': 'workflow'
     };
     
     // Create icon element
     function createIcon(iconName, color) {
       const lucideName = iconMap[iconName] || 'circle';
-      const iconEl = document.createElement('div');
-      iconEl.innerHTML = '<i data-lucide="' + lucideName + '"></i>';
-      setTimeout(() => lucide.createIcons(), 0);
       return h('div', { 
         className: 'node-icon',
         style: { color },
-        dangerouslySetInnerHTML: { __html: '<i data-lucide="' + lucideName + '" style="width:20px;height:20px;"></i>' }
+        dangerouslySetInnerHTML: { __html: '<i data-lucide="' + lucideName + '" style="width:24px;height:24px;"></i>' }
       });
     }
     
@@ -373,7 +444,7 @@ const generateHtmlContent = (diagram: Diagram): string => {
           className: 'node-container' + (isTransparent ? ' transparent' : ''),
           style: isTransparent ? {} : { 
             borderColor: data.color,
-            boxShadow: '0 0 20px ' + data.color + '40, 0 0 40px ' + data.color + '20'
+            boxShadow: '0 0 20px ' + data.color + '30, 0 4px 20px rgba(0,0,0,0.4)'
           }
         },
           hasAttachments && h('div', { 
@@ -381,7 +452,7 @@ const generateHtmlContent = (diagram: Diagram): string => {
             onClick: () => setShowModal(true)
           }, data.attachments.length),
           h('div', { className: 'node-content' },
-            createIcon(data.icon, isTransparent ? 'hsl(var(--foreground))' : data.color),
+            createIcon(data.icon, isTransparent ? '#94a3b8' : data.color),
             h('div', null,
               h('div', { className: 'node-label' }, data.label),
               data.description && h('div', { className: 'node-description' }, data.description),
@@ -427,14 +498,25 @@ const generateHtmlContent = (diagram: Diagram): string => {
           elementsSelectable: true,
           panOnScroll: true,
           zoomOnScroll: true,
-          defaultEdgeOptions: { type: 'smoothstep' }
+          defaultEdgeOptions: { 
+            type: 'smoothstep',
+            style: { stroke: '#64748b', strokeWidth: 2 }
+          }
         },
-          h(Background, { color: '#374151', gap: 20 }),
+          h(Background, { color: '#334155', gap: 24, size: 1 }),
           h(Controls, {}),
-          h(MiniMap, { nodeColor: '#3b82f6', maskColor: 'rgba(0,0,0,0.8)' })
+          h(MiniMap, { 
+            nodeColor: function(n) { return n.data.color === 'transparent' ? '#64748b' : n.data.color; },
+            maskColor: 'rgba(15, 23, 42, 0.9)',
+            style: { background: '#1e293b' }
+          })
+        ),
+        h('div', { className: 'title-bar' },
+          h('i', { 'data-lucide': 'workflow', className: 'title-bar-icon' }),
+          'Attack Diagram Viewer'
         ),
         h('div', { className: 'controls-info' },
-          'Pan: Click + Drag | Zoom: Scroll | Click attachment badges to view images'
+          'Pan: Click + Drag | Zoom: Scroll | Click badges to view attachments'
         )
       );
     }
