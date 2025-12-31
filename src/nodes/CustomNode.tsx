@@ -34,7 +34,15 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
               : undefined,
           }}
         >
-          <Handle type="target" position={Position.Top} className="!bg-primary" />
+          {/* Invisible handles on all sides for flexible connections */}
+          <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-transparent !border-0" id="top-target" />
+          <Handle type="source" position={Position.Top} className="!w-3 !h-3 !bg-transparent !border-0" id="top-source" />
+          <Handle type="target" position={Position.Bottom} className="!w-3 !h-3 !bg-transparent !border-0" id="bottom-target" />
+          <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-transparent !border-0" id="bottom-source" />
+          <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-transparent !border-0" id="left-target" />
+          <Handle type="source" position={Position.Left} className="!w-3 !h-3 !bg-transparent !border-0" id="left-source" />
+          <Handle type="target" position={Position.Right} className="!w-3 !h-3 !bg-transparent !border-0" id="right-target" />
+          <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-transparent !border-0" id="right-source" />
           
           {/* Presentation order badge - only show when selected and NOT in presentation mode */}
           {data.presentationOrder && data.isSelected && !data.isPresentationMode && (
@@ -103,7 +111,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
             </div>
           </div>
         
-          <Handle type="source" position={Position.Bottom} className="!bg-primary" />
+          
         </div>
 
       {/* Attachment Viewer */}
