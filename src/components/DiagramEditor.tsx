@@ -484,7 +484,8 @@ export const DiagramEditor = () => {
   // Handle Delete key for edges and nodes
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isPresentationMode) return;
+      // Don't delete nodes/edges when dialogs are open or in presentation mode
+      if (isPresentationMode || dialogOpen || editDialogOpen || orderManagerOpen) return;
       
       if (e.key === 'Delete') {
         // Delete selected edges
@@ -502,7 +503,7 @@ export const DiagramEditor = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPresentationMode, nodes, setEdges, handleDeleteNode]);
+  }, [isPresentationMode, dialogOpen, editDialogOpen, orderManagerOpen, nodes, setEdges, handleDeleteNode]);
 
   // Modify node styles for presentation mode and pass isPresentationMode to nodes
   const presentationNodes = useMemo(() => {
