@@ -21,6 +21,7 @@ import { PresentationControls } from './PresentationControls';
 import { PresentationOrderManager } from './PresentationOrderManager';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
+import { exportAsHtml } from '@/utils/htmlExport';
 import { useToast } from '@/hooks/use-toast';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { useBackground, getBackgroundStyle } from '@/hooks/useBackground';
@@ -217,6 +218,22 @@ export const DiagramEditor = () => {
       title: 'Diagram exported',
       description: 'JSON file downloaded successfully',
     });
+  }, [nodes, edges, toast]);
+
+  const handleExportHtml = useCallback(async () => {
+    try {
+      await exportAsHtml({ nodes: nodes as AttackNode[], edges });
+      toast({
+        title: 'HTML exported',
+        description: 'Interactive HTML file downloaded successfully',
+      });
+    } catch (error) {
+      toast({
+        title: 'Export failed',
+        description: error instanceof Error ? error.message : 'Failed to export HTML',
+        variant: 'destructive',
+      });
+    }
   }, [nodes, edges, toast]);
 
   const handleImport = useCallback(
@@ -566,6 +583,7 @@ export const DiagramEditor = () => {
         <Toolbar
           onAddNodeClick={() => setDialogOpen(true)}
           onExport={handleExport}
+          onExportHtml={handleExportHtml}
           onImport={handleImport}
           onReset={handleReset}
           onStartPresentation={handleStartPresentation}
