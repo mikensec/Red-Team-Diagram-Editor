@@ -56,16 +56,16 @@ const generateHtmlContent = (diagram: Diagram): string => {
     
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0f172a;
-      color: #f1f5f9;
+      background: hsl(0 0% 100%);
+      color: hsl(222.2 84% 4.9%);
     }
     #root { width: 100vw; height: 100vh; }
     
     /* ReactFlow background */
-    .react-flow { background: #0f172a; }
-    .react-flow__background { background: #0f172a; }
+    .react-flow { background: hsl(0 0% 100%); }
+    .react-flow__background { background: hsl(0 0% 100%); }
     
-    /* Node styles - high contrast dark theme */
+    /* Node styles - light theme */
     .node-container {
       position: relative;
       padding: 14px 18px;
@@ -73,18 +73,18 @@ const generateHtmlContent = (diagram: Diagram): string => {
       min-width: 180px;
       max-width: 280px;
       transition: all 0.2s ease;
-      background: #1e293b;
+      background: hsl(0 0% 100%);
       border: 2px solid;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
     .node-container.transparent {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px dashed #475569;
+      background: hsl(210 40% 96.1%);
+      border: 1px dashed hsl(214.3 31.8% 91.4%);
       box-shadow: none;
     }
     .node-container:hover { 
       transform: scale(1.03);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
     }
     .node-content {
       display: flex;
@@ -98,12 +98,12 @@ const generateHtmlContent = (diagram: Diagram): string => {
     .node-label { 
       font-weight: 600; 
       font-size: 14px; 
-      color: #f8fafc;
+      color: hsl(222.2 84% 4.9%);
       line-height: 1.3;
     }
     .node-description { 
       font-size: 12px; 
-      color: #94a3b8; 
+      color: hsl(215.4 16.3% 46.9%); 
       margin-top: 4px;
       line-height: 1.4;
     }
@@ -111,7 +111,7 @@ const generateHtmlContent = (diagram: Diagram): string => {
     .node-link {
       display: block;
       font-size: 11px;
-      color: #60a5fa;
+      color: hsl(217 91% 60%);
       text-decoration: none;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -121,7 +121,7 @@ const generateHtmlContent = (diagram: Diagram): string => {
     }
     .node-link:hover { 
       text-decoration: underline;
-      color: #93c5fd;
+      color: hsl(217 91% 50%);
     }
     
     /* Attachment badge */
@@ -129,8 +129,8 @@ const generateHtmlContent = (diagram: Diagram): string => {
       position: absolute;
       top: -10px;
       right: -10px;
-      background: #3b82f6;
-      color: #ffffff;
+      background: hsl(217 91% 60%);
+      color: hsl(0 0% 100%);
       border-radius: 50%;
       width: 26px;
       height: 26px;
@@ -142,18 +142,18 @@ const generateHtmlContent = (diagram: Diagram): string => {
       cursor: pointer;
       transition: transform 0.2s, background 0.2s;
       z-index: 10;
-      border: 2px solid #0f172a;
+      border: 2px solid hsl(0 0% 100%);
     }
     .attachment-badge:hover { 
       transform: scale(1.15);
-      background: #2563eb;
+      background: hsl(217 91% 50%);
     }
     
     /* Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -162,40 +162,40 @@ const generateHtmlContent = (diagram: Diagram): string => {
       backdrop-filter: blur(4px);
     }
     .modal-content {
-      background: #1e293b;
+      background: hsl(0 0% 100%);
       border-radius: 16px;
       max-width: 800px;
       width: 90vw;
       max-height: 90vh;
       overflow: auto;
-      border: 1px solid #334155;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      border: 1px solid hsl(214.3 31.8% 91.4%);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
     }
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 18px 24px;
-      border-bottom: 1px solid #334155;
-      background: #0f172a;
+      border-bottom: 1px solid hsl(214.3 31.8% 91.4%);
+      background: hsl(210 40% 96.1%);
       border-radius: 16px 16px 0 0;
     }
     .modal-title { 
       font-weight: 600; 
       font-size: 18px;
-      color: #f8fafc;
+      color: hsl(222.2 84% 4.9%);
     }
     .modal-close {
-      background: #334155;
-      border: none;
-      color: #f8fafc;
+      background: hsl(210 40% 96.1%);
+      border: 1px solid hsl(214.3 31.8% 91.4%);
+      color: hsl(222.2 84% 4.9%);
       cursor: pointer;
       padding: 8px 12px;
       border-radius: 8px;
       font-size: 16px;
       transition: background 0.2s;
     }
-    .modal-close:hover { background: #475569; }
+    .modal-close:hover { background: hsl(214.3 31.8% 91.4%); }
     .modal-body { padding: 24px; }
     
     /* Attachment list */
@@ -205,31 +205,31 @@ const generateHtmlContent = (diagram: Diagram): string => {
       flex-direction: column;
       gap: 10px;
       padding: 16px;
-      background: #0f172a;
+      background: hsl(210 40% 96.1%);
       border-radius: 12px;
-      border: 1px solid #334155;
+      border: 1px solid hsl(214.3 31.8% 91.4%);
     }
     .attachment-name { 
       font-weight: 600; 
       font-size: 14px;
-      color: #e2e8f0;
+      color: hsl(222.2 84% 4.9%);
     }
     .attachment-image {
       max-width: 100%;
       max-height: 500px;
       object-fit: contain;
       border-radius: 8px;
-      background: #020617;
+      background: hsl(0 0% 100%);
     }
     .attachment-link {
-      color: #60a5fa;
+      color: hsl(217 91% 60%);
       text-decoration: none;
       word-break: break-all;
       font-size: 14px;
     }
     .attachment-link:hover { 
       text-decoration: underline;
-      color: #93c5fd;
+      color: hsl(217 91% 50%);
     }
     
     /* Controls info */
@@ -237,14 +237,14 @@ const generateHtmlContent = (diagram: Diagram): string => {
       position: fixed;
       bottom: 20px;
       left: 20px;
-      background: #1e293b;
+      background: hsl(0 0% 100%);
       padding: 14px 18px;
       border-radius: 10px;
       font-size: 13px;
-      color: #94a3b8;
-      border: 1px solid #334155;
+      color: hsl(215.4 16.3% 46.9%);
+      border: 1px solid hsl(214.3 31.8% 91.4%);
       z-index: 100;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
     
     /* Title bar */
@@ -252,23 +252,23 @@ const generateHtmlContent = (diagram: Diagram): string => {
       position: fixed;
       top: 20px;
       left: 20px;
-      background: #1e293b;
+      background: hsl(0 0% 100%);
       padding: 12px 18px;
       border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
-      color: #f8fafc;
-      border: 1px solid #334155;
+      color: hsl(222.2 84% 4.9%);
+      border: 1px solid hsl(214.3 31.8% 91.4%);
       z-index: 100;
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
     .title-bar-icon {
       width: 20px;
       height: 20px;
-      color: #3b82f6;
+      color: hsl(217 91% 60%);
     }
     
     /* Hide ReactFlow handles in viewer */
@@ -276,29 +276,29 @@ const generateHtmlContent = (diagram: Diagram): string => {
     
     /* ReactFlow controls styling */
     .react-flow__controls {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: hsl(0 0% 100%);
+      border: 1px solid hsl(214.3 31.8% 91.4%);
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
     .react-flow__controls-button {
-      background: #1e293b;
+      background: hsl(0 0% 100%);
       border: none;
-      color: #f8fafc;
+      color: hsl(222.2 84% 4.9%);
     }
     .react-flow__controls-button:hover {
-      background: #334155;
+      background: hsl(210 40% 96.1%);
     }
     .react-flow__controls-button svg {
-      fill: #f8fafc;
+      fill: hsl(222.2 84% 4.9%);
     }
     
     /* MiniMap styling */
     .react-flow__minimap {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: hsl(0 0% 100%);
+      border: 1px solid hsl(214.3 31.8% 91.4%);
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
   </style>
 </head>
@@ -500,15 +500,15 @@ const generateHtmlContent = (diagram: Diagram): string => {
           zoomOnScroll: true,
           defaultEdgeOptions: { 
             type: 'smoothstep',
-            style: { stroke: '#64748b', strokeWidth: 2 }
+            style: { stroke: 'hsl(215.4 16.3% 46.9%)', strokeWidth: 2 }
           }
         },
-          h(Background, { color: '#334155', gap: 24, size: 1 }),
+          h(Background, { color: 'hsl(214.3 31.8% 91.4%)', gap: 24, size: 1 }),
           h(Controls, {}),
           h(MiniMap, { 
-            nodeColor: function(n) { return n.data.color === 'transparent' ? '#64748b' : n.data.color; },
-            maskColor: 'rgba(15, 23, 42, 0.9)',
-            style: { background: '#1e293b' }
+            nodeColor: function(n) { return n.data.color === 'transparent' ? 'hsl(215.4 16.3% 46.9%)' : n.data.color; },
+            maskColor: 'rgba(255, 255, 255, 0.9)',
+            style: { background: 'hsl(0 0% 100%)' }
           })
         ),
         h('div', { className: 'title-bar' },
