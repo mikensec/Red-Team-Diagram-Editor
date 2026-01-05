@@ -446,6 +446,30 @@ export const DiagramEditor = () => {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  // Handle applying AI-generated template
+  const handleApplyTemplate = useCallback(async (templateNodes: AttackNode[], templateEdges: Edge[]) => {
+    // Clear existing attachments first
+    await clearAllAttachments();
+    
+    // Set the new nodes and edges
+    setNodes(templateNodes);
+    setEdges(templateEdges);
+    
+    // Save the new diagram
+    const diagram: Diagram = { nodes: templateNodes, edges: templateEdges };
+    await saveDiagram(diagram);
+    
+    // Fit the view to show all nodes
+    setTimeout(() => {
+      fitView({ duration: 800, padding: 0.2 });
+    }, 100);
+    
+    toast({
+      title: 'Template Applied',
+      description: `Loaded ${templateNodes.length} nodes and ${templateEdges.length} connections.`,
+    });
+  }, [setNodes, setEdges, fitView, toast]);
+
   const handleSaveEdit = useCallback(
     async (data: NodeData) => {
       if (!selectedNodeData) return;
@@ -588,6 +612,7 @@ export const DiagramEditor = () => {
           onReset={handleReset}
           onStartPresentation={handleStartPresentation}
           onManageOrder={() => setOrderManagerOpen(true)}
+          onApplyTemplate={handleApplyTemplate}
           hasNodes={nodes.length > 0}
         />
       )}

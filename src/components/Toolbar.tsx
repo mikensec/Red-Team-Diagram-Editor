@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu, ListOrdered, Share2 } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu, ListOrdered, Share2, Sparkles } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { VERSION } from '@/version';
+import { TemplateGeneratorDialog } from './TemplateGeneratorDialog';
+import { AttackNode } from '@/types/Diagram';
+import { Edge } from 'reactflow';
 
 interface ToolbarProps {
   onAddNodeClick: () => void;
@@ -20,6 +23,7 @@ interface ToolbarProps {
   onReset: () => void;
   onStartPresentation: () => void;
   onManageOrder: () => void;
+  onApplyTemplate: (nodes: AttackNode[], edges: Edge[]) => void;
   hasNodes: boolean;
 }
 export const Toolbar = ({
@@ -30,6 +34,7 @@ export const Toolbar = ({
   onReset,
   onStartPresentation,
   onManageOrder,
+  onApplyTemplate,
   hasNodes
 }: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +87,13 @@ export const Toolbar = ({
                 <Plus className="w-4 h-4 mr-2" />
                 Add Node
               </Button>
+
+              <TemplateGeneratorDialog onApplyTemplate={onApplyTemplate} hasExistingNodes={hasNodes}>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate Template
+                </Button>
+              </TemplateGeneratorDialog>
 
               <Separator />
 
@@ -189,6 +201,12 @@ export const Toolbar = ({
             <Plus className="w-4 h-4 mr-2" />
             Add Node
           </Button>
+
+          <TemplateGeneratorDialog onApplyTemplate={onApplyTemplate} hasExistingNodes={hasNodes}>
+            <Button variant="outline" size="sm" title="Generate diagram from template">
+              <Sparkles className="w-4 h-4" />
+            </Button>
+          </TemplateGeneratorDialog>
 
           <div className="w-px h-6 bg-border" />
 
