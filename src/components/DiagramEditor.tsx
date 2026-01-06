@@ -21,6 +21,7 @@ import { PresentationControls } from './PresentationControls';
 import { PresentationOrderManager } from './PresentationOrderManager';
 import { AttackNode, Diagram, NodeData } from '@/types/Diagram';
 import { saveDiagram, loadDiagram, exportDiagram, importDiagram } from '@/utils/storage';
+import { exportAsHtml } from '@/utils/htmlExport';
 import { useToast } from '@/hooks/use-toast';
 import { useNeonMode } from '@/hooks/useNeonMode';
 import { useBackground, getBackgroundStyle } from '@/hooks/useBackground';
@@ -217,6 +218,22 @@ export const DiagramEditor = () => {
       title: 'Diagram exported',
       description: 'JSON file downloaded successfully',
     });
+  }, [nodes, edges, toast]);
+
+  const handleExportHtml = useCallback(async () => {
+    try {
+      await exportAsHtml({ nodes: nodes as AttackNode[], edges });
+      toast({
+        title: 'HTML exported',
+        description: 'Interactive HTML file downloaded successfully',
+      });
+    } catch (error) {
+      toast({
+        title: 'Export failed',
+        description: error instanceof Error ? error.message : 'Failed to export HTML',
+        variant: 'destructive',
+      });
+    }
   }, [nodes, edges, toast]);
 
   const handleImport = useCallback(
@@ -429,6 +446,30 @@ export const DiagramEditor = () => {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  // Handle applying AI-generated template
+  const handleApplyTemplate = useCallback(async (templateNodes: AttackNode[], templateEdges: Edge[]) => {
+    // Clear existing attachments first
+    await clearAllAttachments();
+    
+    // Set the new nodes and edges
+    setNodes(templateNodes);
+    setEdges(templateEdges);
+    
+    // Save the new diagram
+    const diagram: Diagram = { nodes: templateNodes, edges: templateEdges };
+    await saveDiagram(diagram);
+    
+    // Fit the view to show all nodes
+    setTimeout(() => {
+      fitView({ duration: 800, padding: 0.2 });
+    }, 100);
+    
+    toast({
+      title: 'Template Applied',
+      description: `Loaded ${templateNodes.length} nodes and ${templateEdges.length} connections.`,
+    });
+  }, [setNodes, setEdges, fitView, toast]);
+
   const handleSaveEdit = useCallback(
     async (data: NodeData) => {
       if (!selectedNodeData) return;
@@ -484,7 +525,8 @@ export const DiagramEditor = () => {
   // Handle Delete key for edges and nodes
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isPresentationMode) return;
+      // Don't delete nodes/edges when dialogs are open or in presentation mode
+      if (isPresentationMode || dialogOpen || editDialogOpen || orderManagerOpen) return;
       
       if (e.key === 'Delete') {
         // Delete selected edges
@@ -502,7 +544,7 @@ export const DiagramEditor = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPresentationMode, nodes, setEdges, handleDeleteNode]);
+  }, [isPresentationMode, dialogOpen, editDialogOpen, orderManagerOpen, nodes, setEdges, handleDeleteNode]);
 
   // Modify node styles for presentation mode and pass isPresentationMode to nodes
   const presentationNodes = useMemo(() => {
@@ -565,10 +607,12 @@ export const DiagramEditor = () => {
         <Toolbar
           onAddNodeClick={() => setDialogOpen(true)}
           onExport={handleExport}
+          onExportHtml={handleExportHtml}
           onImport={handleImport}
           onReset={handleReset}
           onStartPresentation={handleStartPresentation}
           onManageOrder={() => setOrderManagerOpen(true)}
+          onApplyTemplate={handleApplyTemplate}
           hasNodes={nodes.length > 0}
         />
       )}

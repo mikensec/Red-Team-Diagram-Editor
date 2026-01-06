@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu, ListOrdered } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu, ListOrdered, Share2, Sparkles } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
@@ -9,23 +9,32 @@ import { FontSettings } from './FontSettings';
 import { StorageMonitor } from './StorageMonitor';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { VERSION } from '@/version';
+import { TemplateGeneratorDialog } from './TemplateGeneratorDialog';
+import { AttackNode } from '@/types/Diagram';
+import { Edge } from 'reactflow';
+
 interface ToolbarProps {
   onAddNodeClick: () => void;
   onExport: () => void;
+  onExportHtml: () => void;
   onImport: (file: File) => void;
   onReset: () => void;
   onStartPresentation: () => void;
   onManageOrder: () => void;
+  onApplyTemplate: (nodes: AttackNode[], edges: Edge[]) => void;
   hasNodes: boolean;
 }
 export const Toolbar = ({
   onAddNodeClick,
   onExport,
+  onExportHtml,
   onImport,
   onReset,
   onStartPresentation,
   onManageOrder,
+  onApplyTemplate,
   hasNodes
 }: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,12 +88,33 @@ export const Toolbar = ({
                 Add Node
               </Button>
 
+              <TemplateGeneratorDialog onApplyTemplate={onApplyTemplate} hasExistingNodes={hasNodes}>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate Template
+                </Button>
+              </TemplateGeneratorDialog>
+
               <Separator />
 
-              <Button onClick={() => handleMobileAction(onExport)} variant="outline" size="sm" className="w-full justify-start">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Download className="w-4 h-4 mr-2" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleMobileAction(onExport)}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export as JSON
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleMobileAction(onExportHtml)}>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Export as Interactive HTML
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <Button onClick={() => handleMobileAction(handleImportClick)} variant="outline" size="sm" className="w-full justify-start">
                 <Upload className="w-4 h-4 mr-2" />
@@ -172,12 +202,32 @@ export const Toolbar = ({
             Add Node
           </Button>
 
+          <TemplateGeneratorDialog onApplyTemplate={onApplyTemplate} hasExistingNodes={hasNodes}>
+            <Button variant="outline" size="sm" title="Generate diagram from template">
+              <Sparkles className="w-4 h-4" />
+            </Button>
+          </TemplateGeneratorDialog>
+
           <div className="w-px h-6 bg-border" />
 
-          <Button onClick={onExport} variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={onExport}>
+                <Download className="w-4 h-4 mr-2" />
+                Export as JSON
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onExportHtml}>
+                <Share2 className="w-4 h-4 mr-2" />
+                Export as Interactive HTML
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Button onClick={handleImportClick} variant="outline" size="sm">
             <Upload className="w-4 h-4 mr-2" />

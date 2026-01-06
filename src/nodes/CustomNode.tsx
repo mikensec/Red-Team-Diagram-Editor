@@ -22,7 +22,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
     <>
       {/* Main node container */}
       <div
-          className={`relative px-4 py-3 rounded-lg min-w-[180px] transition-all ${
+          className={`group relative px-4 py-3 rounded-lg min-w-[180px] transition-all ${
             isTransparent 
               ? 'hover:scale-105' 
               : 'border shadow-2xl hover:shadow-xl bg-card/75 backdrop-blur-md'
@@ -34,7 +34,15 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
               : undefined,
           }}
         >
-          <Handle type="target" position={Position.Top} className="!bg-primary" />
+          {/* Handles on all sides - visible on hover */}
+          <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-primary !border-2 !border-background opacity-0 group-hover:opacity-100 transition-opacity" id="top-target" />
+          <Handle type="source" position={Position.Top} className="!w-3 !h-3 !bg-primary !border-2 !border-background opacity-0 group-hover:opacity-100 transition-opacity" id="top-source" />
+          <Handle type="target" position={Position.Bottom} className="!w-3 !h-3 !bg-primary !border-2 !border-background opacity-0 group-hover:opacity-100 transition-opacity" id="bottom-target" />
+          <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-primary !border-2 !border-background opacity-0 group-hover:opacity-100 transition-opacity" id="bottom-source" />
+          <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-primary !border-2 !border-background opacity-0 group-hover:opacity-100 transition-opacity" id="left-target" />
+          <Handle type="source" position={Position.Left} className="!w-3 !h-3 !bg-primary !border-2 !border-background opacity-0 group-hover:opacity-100 transition-opacity" id="left-source" />
+          <Handle type="target" position={Position.Right} className="!w-3 !h-3 !bg-primary !border-2 !border-background opacity-0 group-hover:opacity-100 transition-opacity" id="right-target" />
+          <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-primary !border-2 !border-background opacity-0 group-hover:opacity-100 transition-opacity" id="right-source" />
           
           {/* Presentation order badge - only show when selected and NOT in presentation mode */}
           {data.presentationOrder && data.isSelected && !data.isPresentationMode && (
@@ -103,7 +111,7 @@ export const CustomNode = ({ data, id }: NodeProps<NodeData>) => {
             </div>
           </div>
         
-          <Handle type="source" position={Position.Bottom} className="!bg-primary" />
+          
         </div>
 
       {/* Attachment Viewer */}

@@ -26,30 +26,44 @@ A powerful, browser-based Progressive Web App (PWA) for creating and managing re
 ### Core Functionality
 - **Full-Featured Diagram Editor**: Powered by React Flow with smooth interactions
 - **Custom Node Creation**: Add nodes with custom labels, colors, and icons
-  - Choose from 36+ professional icons (Shield, Network, Terminal, Cloud, etc.)
+  - Choose from 65+ professional icons (Shield, Network, Terminal, Cloud, etc.)
   - Full color customization with color picker
   - Any custom label text for your attack stages
-- **Flexible Node Types**: Create any attack stage nodes you need (Initial Access, C2, Lateral Movement, Execution, Privilege Escalation, Objective, or custom stages)
+- **Flexible Connections**: Connect nodes from any side (top, bottom, left, right)
 - **Auto-Save**: Diagrams automatically persist to browser localStorage
 - **Import/Export**: Save and load diagrams as JSON files
-- **Multiple Diagrams**: Create and manage multiple attack scenarios
+- **Interactive HTML Export**: Share diagrams as standalone HTML files with full interactivity
 
 ### Customization
-- **Custom Icons**: 36+ professional icons to choose from for each node (Shield, Network, Terminal, Target, Key, Database, Server, Cloud, and more)
-- **Custom Colors**: Full color picker for node customization
+- **Custom Icons**: 65+ professional icons to choose from for each node
+- **Custom Colors**: Full color picker for node customization (including transparent)
 - **Background Themes**: Multiple built-in backgrounds (abstract, mountains, nature, night city)
 - **Neon Mode**: Toggle cyberpunk-style neon aesthetics
 - **Font Customization**: Adjust font family and size
 - **Dark/Light Mode**: Seamless theme switching
 
+### Sharing & Export
+- **JSON Export**: Export diagrams for backup or re-import
+- **Interactive HTML Export**: Generate standalone HTML files that anyone can view with full pan/zoom/attachment viewing
+- **AI/LLM Compatible**: Well-documented JSON schema allows AI assistants to generate diagrams programmatically
+
 ### Advanced Features
 - **Progressive Web App (PWA)**: Install as a native app on desktop or mobile
 - **Fully Offline-Capable**: Works 100% offline after installation - perfect for air-gapped environments
-- **Attachment Management**: Add files, links, and notes to nodes
-- **Presentation Mode**: Clean view for presenting diagrams
+- **Attachment Management**: Add images, screenshots, and links to nodes
+- **Presentation Mode**: Step through nodes sequentially with keyboard navigation
+- **Presentation Order**: Customize the order nodes appear in presentations
 - **Responsive Design**: Works on desktop and mobile devices
 - **No Backend Required**: Complete client-side application with localStorage and IndexedDB
-- **Auto-Updates**: Service worker automatically updates to latest version
+
+## 🤖 AI/LLM Integration
+
+This app supports AI-generated diagrams! Any AI assistant (ChatGPT, Claude, Gemini, etc.) can generate valid diagram JSON that you can import directly.
+
+**See the [JSON Schema Documentation](docs/JSON_SCHEMA.md) for complete technical details.**
+
+Quick example prompt for AI:
+> "Generate a red team attack diagram JSON for a phishing campaign leading to domain admin compromise"
 
 ## 🛠️ Technology Stack
 
@@ -60,11 +74,10 @@ A powerful, browser-based Progressive Web App (PWA) for creating and managing re
 - **UI Components**: Radix UI + shadcn/ui
 - **Styling**: Tailwind CSS with custom design system
 - **State Management**: React hooks + Context API
-- **Local Storage**: IndexedDB for diagram persistence
+- **Local Storage**: IndexedDB for attachment persistence
 - **Routing**: React Router v6
 - **Icons**: Lucide React
 - **Forms**: React Hook Form + Zod validation
-- **Utilities**: date-fns, clsx, tailwind-merge
 
 ## 🚀 Getting Started
 
@@ -144,10 +157,14 @@ src/
 ├── utils/              # Utility functions
 │   ├── indexedDB.ts   # Database operations
 │   ├── storage.ts     # LocalStorage helpers
+│   ├── htmlExport.ts  # Interactive HTML export
 │   └── validation.ts  # Schema validation
 ├── App.tsx             # Main app component
 ├── index.css           # Global styles & design system
 └── main.tsx            # Application entry point
+
+docs/
+└── JSON_SCHEMA.md      # Technical JSON schema for AI/LLM integration
 ```
 
 ## 🌐 Deployment
@@ -163,7 +180,7 @@ The easiest way to deploy this project:
 **Custom Domain Setup:**
 - Navigate to Project → Settings → Domains
 - Click "Connect Domain"
-- Follow the instructions to connect your custom domain (e.g., red.michaelnieto.com)
+- Follow the instructions to connect your custom domain
 - Requires a paid Lovable plan
 
 ### Option 2: GitHub Pages
@@ -186,146 +203,69 @@ The easiest way to deploy this project:
    npm run deploy
    ```
 
-4. **Enable GitHub Pages**
-   - Go to repository Settings → Pages
-   - Select `gh-pages` branch
-   - Your app will be live at `https://[username].github.io/[repo-name]/`
+### Option 3: Vercel / Netlify / Static Hosting
 
-### Option 3: Vercel
-
-1. **Install Vercel CLI**
-   ```bash
-   npm install -g vercel
-   ```
-
-2. **Deploy**
-   ```bash
-   vercel
-   ```
-
-   Or connect your GitHub repository at [vercel.com](https://vercel.com) for automatic deployments.
-
-### Option 4: Netlify
-
-1. **Build the project**
-   ```bash
-   npm run build
-   ```
-
-2. **Deploy via Netlify CLI**
-   ```bash
-   npm install -g netlify-cli
-   netlify deploy --prod --dir=dist
-   ```
-
-   Or drag and drop the `dist` folder to [Netlify Drop](https://app.netlify.com/drop).
-
-### Option 5: Custom Static Hosting
-
-Build the project and upload the `dist` folder to any static file hosting service:
+Build the project and deploy the `dist` folder:
 
 ```bash
 npm run build
 ```
 
-The `dist` folder contains all static files ready for deployment to:
-- AWS S3 + CloudFront
-- Google Cloud Storage
-- Azure Static Web Apps
-- Any web server (Apache, Nginx, etc.)
+The `dist` folder contains all static files ready for any hosting service.
 
 ## 📖 Usage
 
 ### Creating Your First Diagram
 
-1. **Add Nodes**: Click the "+" button or use the toolbar to add attack stage nodes
-2. **Connect Nodes**: Drag from one node's edge to another to create connections
-3. **Customize**: 
-   - Double-click nodes to edit labels and descriptions
-   - Choose custom icons from the icon picker
-   - Add attachments, links, and notes
-4. **Style**: Toggle neon mode, change backgrounds, and adjust fonts
-5. **Save**: Your diagram auto-saves to the browser
-6. **Export**: Download as JSON for backup or sharing
+1. **Add Nodes**: Click "Add Node" in the toolbar
+2. **Connect Nodes**: Hover over a node to reveal connection handles, then drag to another node
+3. **Customize**: Click nodes to edit labels, icons, colors, and attachments
+4. **Present**: Use presentation mode to step through your diagram
+5. **Export**: Download as JSON or Interactive HTML to share
 
 ### Keyboard Shortcuts
 
-- `Delete` - Remove selected nodes/edges
-- `Ctrl/Cmd + Z` - Undo (via browser)
-- `Ctrl/Cmd + C/V` - Copy/paste nodes
+| Key | Action |
+|-----|--------|
+| `Delete` | Remove selected nodes/edges |
+| `Escape` | Exit presentation mode |
+| `Arrow Keys` | Navigate nodes in presentation |
+| `F` | Toggle fullscreen (presentation) |
+| `Home` | Jump to first node (presentation) |
+| `End` | Jump to last node (presentation) |
 
-### Tips
+### Sharing Diagrams
 
-- Use different node colors to represent different threat actors or attack phases
-- Add detailed descriptions and attachments to document TTPs
-- Use presentation mode for clean, distraction-free views
-- Export regularly to backup your diagrams
-- Import diagrams to share with your team
+**JSON Export** - For backup or re-import:
+- Click Export → Export as JSON
+- Share the `.json` file with team members
+
+**Interactive HTML Export** - For viewing without the app:
+- Click Export → Export as Interactive HTML
+- Share the `.html` file - recipients can view with full interactivity
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+Contributions are welcome! Please:
 
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add some amazing feature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
-
-### Reporting Issues
-
-Found a bug or have a feature request? Please open an issue on GitHub with:
-- Clear description of the problem/feature
-- Steps to reproduce (for bugs)
-- Expected vs actual behavior
-- Screenshots if applicable
-
-### Code Guidelines
-
-- Follow the existing code style
-- Write meaningful commit messages
-- Add comments for complex logic
-- Test your changes thoroughly
-- Update documentation as needed
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-**What this means:**
-- ✅ Commercial use allowed
-- ✅ Modification allowed
-- ✅ Distribution allowed
-- ✅ Private use allowed
-- ❌ No liability
-- ❌ No warranty
-
 ## 👤 Creator
 
 **Michael Nieto**
 
-Red team professional and security tool developer. This tool was created to streamline the process of documenting and visualizing attack paths during security assessments.
+Red team professional and security tool developer.
 
 - LinkedIn: [linkedin.com/in/nietomichael](https://www.linkedin.com/in/nietomichael/)
 - Website: [michaelnieto.com](https://michaelnieto.com)
-
-## 💬 Support
-
-Need help or have questions?
-
-- **Documentation**: Check this README and the in-app Help page
-- **Issues**: [Open an issue](https://github.com/mikensec/red-team-canvas/issues) on GitHub
-- **Discussions**: Join conversations in the repository's Discussions tab
-- **LinkedIn**: Connect with me for questions or collaboration
 
 ## 🙏 Acknowledgments
 
