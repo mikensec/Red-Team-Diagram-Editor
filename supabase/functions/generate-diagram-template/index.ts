@@ -75,11 +75,12 @@ Follow this exact schema:
   ]
 }
 
-CRITICAL Layout guidelines - use GENEROUS spacing:
-- Left-to-right flow: Start at x:50, increment x by 350 for each node in sequence, keep y consistent (around 100)
-- Top-to-bottom flow: Start at y:50, increment y by 200 for each node in sequence, keep x consistent (around 100)
-- For branching paths, offset perpendicular axis by ±200 from main path
-- Minimum spacing between any two nodes: 300px horizontally, 180px vertically
+CRITICAL Layout guidelines - ALWAYS use HORIZONTAL left-to-right flow as the PRIMARY direction:
+- Main chain: Start at x:50, y:100. For each sequential node, increment x by 350 (keep y the same)
+- Branching: When a node has multiple outputs, offset branches vertically by ±200 on the y-axis
+- Secondary paths: Place parallel/alternative paths at y:300 or y:-100, still flowing left-to-right
+- NEVER stack nodes vertically as the main flow - horizontal chains look much better
+- Minimum spacing: 300px horizontally between nodes, 180px vertically between branches
 
 Available icons (use exact names):
 - Security: Shield, ShieldAlert, ShieldCheck, Lock, Unlock, Key, Fingerprint
