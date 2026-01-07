@@ -75,10 +75,11 @@ Follow this exact schema:
   ]
 }
 
-Layout guidelines:
-- Left-to-right: Start at x:0, increment x by 280 for each node
-- Top-to-bottom: Start at y:0, increment y by 180 for each node
-- For branching, offset y by ±150 from main path
+CRITICAL Layout guidelines - use GENEROUS spacing:
+- Left-to-right flow: Start at x:50, increment x by 350 for each node in sequence, keep y consistent (around 100)
+- Top-to-bottom flow: Start at y:50, increment y by 200 for each node in sequence, keep x consistent (around 100)
+- For branching paths, offset perpendicular axis by ±200 from main path
+- Minimum spacing between any two nodes: 300px horizontally, 180px vertically
 
 Available icons (use exact names):
 - Security: Shield, ShieldAlert, ShieldCheck, Lock, Unlock, Key, Fingerprint
@@ -216,6 +217,61 @@ serve(async (req) => {
     if (!parsedDiagram.edges || !Array.isArray(parsedDiagram.edges)) {
       parsedDiagram.edges = [];
     }
+
+    // Build node position lookup for edge handle calculation
+    const nodePositions: Record<string, { x: number; y: number }> = {};
+    for (const node of parsedDiagram.nodes) {
+      if (node.id && node.position) {
+        nodePositions[node.id] = node.position;
+      }
+    }
+
+    // Calculate proper sourceHandle and targetHandle based on relative positions
+    parsedDiagram.edges = parsedDiagram.edges.map((edge: { id: string; source: string; target: string }) => {
+      const sourcePos = nodePositions[edge.source];
+      const targetPos = nodePositions[edge.target];
+      
+      if (!sourcePos || !targetPos) {
+        return edge;
+      }
+
+      const dx = targetPos.x - sourcePos.x;
+      const dy = targetPos.y - sourcePos.y;
+      
+      let sourceHandle: string;
+      let targetHandle: string;
+      
+      // Determine primary direction based on larger delta
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal connection
+        if (dx > 0) {
+          // Target is to the right
+          sourceHandle = 'right-source';
+          targetHandle = 'left-target';
+        } else {
+          // Target is to the left
+          sourceHandle = 'left-source';
+          targetHandle = 'right-target';
+        }
+      } else {
+        // Vertical connection
+        if (dy > 0) {
+          // Target is below
+          sourceHandle = 'bottom-source';
+          targetHandle = 'top-target';
+        } else {
+          // Target is above
+          sourceHandle = 'top-source';
+          targetHandle = 'bottom-target';
+        }
+      }
+      
+      return {
+        ...edge,
+        sourceHandle,
+        targetHandle,
+      };
+    });
 
     console.log(`Successfully generated template with ${parsedDiagram.nodes.length} nodes and ${parsedDiagram.edges.length} edges`);
 
