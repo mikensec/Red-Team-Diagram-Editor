@@ -219,11 +219,18 @@ serve(async (req) => {
       parsedDiagram.edges = [];
     }
 
-    // Build node position lookup for edge handle calculation
+    // Build node position lookup for edge handle calculation and set transparent backgrounds
     const nodePositions: Record<string, { x: number; y: number }> = {};
     for (const node of parsedDiagram.nodes) {
       if (node.id && node.position) {
         nodePositions[node.id] = node.position;
+      }
+      // Ensure all nodes have transparent background by default
+      if (node.data) {
+        node.data.style = {
+          ...node.data.style,
+          background: 'transparent',
+        };
       }
     }
 
