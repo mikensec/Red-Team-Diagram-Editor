@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import { AttackNode } from '@/types/Diagram';
 import { Edge } from 'reactflow';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TemplateCategory {
   id: string;
@@ -117,12 +118,20 @@ export function TemplateGeneratorDialog({
     setGeneratedDiagram(null);
 
     try {
+      // Get the current session for auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('Please sign in to generate templates');
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-diagram-template`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ categoryId }),
         }
