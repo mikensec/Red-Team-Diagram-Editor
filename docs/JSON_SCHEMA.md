@@ -1,6 +1,6 @@
-# Red Team Diagram JSON Schema
+# Red Team Diagram JSON Schema v2.0
 
-This document describes the JSON format for importing diagrams into the Red Team Diagram Editor. Use this schema to programmatically generate diagrams or to enable AI/LLM assistants to create attack flow diagrams.
+This document describes the JSON format for importing diagrams into the Red Team Diagram Editor v2.0. Use this schema to programmatically generate diagrams or to enable AI/LLM assistants to create attack flow diagrams.
 
 ## Quick Start for AI Assistants
 
@@ -148,10 +148,10 @@ Use colors to categorize attack phases:
 
 For readable diagrams, follow these positioning guidelines:
 
-- **Horizontal spacing**: 250-300 pixels between nodes
-- **Vertical spacing**: 150-200 pixels between rows
-- **Flow direction**: Left-to-right or top-to-bottom
-- **Starting position**: Begin at `{ "x": 0, "y": 0 }` or center of canvas
+- **Horizontal spacing**: 300-350 pixels between nodes (horizontal chains preferred)
+- **Vertical spacing**: 180-200 pixels between branches
+- **Flow direction**: Left-to-right (primary) or top-to-bottom (secondary)
+- **Starting position**: Begin at `{ "x": 50, "y": 100 }` for the first node
 
 ### Example Layout Patterns
 
@@ -362,5 +362,7 @@ The application validates imported JSON against these rules:
 | "Unsafe URL protocol" | URL not http/https | Use only http:// or https:// URLs |
 
 ---
+
+**Red Team Diagram Editor v2.0**
 
 For more help, see the [main README](../README.md) or open an issue on GitHub.
