@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -114,99 +115,98 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
             AI Provider Settings
           </DialogTitle>
         </DialogHeader>
 
-        <Alert className="border-amber-500/20 bg-amber-500/5">
-          <AlertTriangle className="h-4 w-4 text-amber-500" />
-          <AlertDescription className="text-sm">
-            <strong>Privacy Warning:</strong> AI features send your diagram data (node labels, descriptions, connections) to external AI services. 
-            Enable <strong>Offline Mode</strong> to disable AI or use <strong>Anonymize Data</strong> to strip sensitive labels.
-          </AlertDescription>
-        </Alert>
+        <ScrollArea className="flex-1 -mx-6 px-6">
+          <div className="space-y-4 pr-2">
+            <Alert className="border-amber-500/20 bg-amber-500/5">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              <AlertDescription className="text-sm">
+                <strong>Privacy Warning:</strong> AI features send your diagram data to external services. 
+                Enable <strong>Offline Mode</strong> or use <strong>Anonymize Data</strong>.
+              </AlertDescription>
+            </Alert>
 
-        <Alert className="border-blue-500/20 bg-blue-500/5">
-          <Key className="h-4 w-4" />
-          <AlertDescription className="text-sm">
-            <strong>API Keys:</strong> Stored locally in your browser. Never sent to our servers - only directly to the AI provider.
-          </AlertDescription>
-        </Alert>
+            <Alert className="border-blue-500/20 bg-blue-500/5">
+              <Key className="h-4 w-4" />
+              <AlertDescription className="text-sm">
+                <strong>API Keys:</strong> Stored locally in your browser only.
+              </AlertDescription>
+            </Alert>
 
-        <div className="space-y-4">
-          <div className="border rounded-lg p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-sm font-medium flex items-center gap-2">
-                  <WifiOff className="w-4 h-4" />
-                  Offline Mode
-                </Label>
-                <p className="text-xs text-muted-foreground">Disable all AI features - no data sent anywhere</p>
-              </div>
-              <Switch
-                checked={settings.offlineMode}
-                onCheckedChange={(checked) => {
-                  updateSettings({ offlineMode: checked });
-                  toast.success(checked ? 'AI features disabled' : 'AI features enabled');
-                }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-sm font-medium flex items-center gap-2">
-                  <Anonymize className="w-4 h-4" />
-                  Anonymize Data
-                </Label>
-                <p className="text-xs text-muted-foreground">Replace node labels with generic placeholders before sending</p>
-              </div>
-              <Switch
-                checked={settings.anonymizeData}
-                onCheckedChange={(checked) => {
-                  updateSettings({ anonymizeData: checked });
-                  toast.success(checked ? 'Data will be anonymized' : 'Anonymization disabled');
-                }}
-                disabled={settings.offlineMode}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label className="text-sm font-medium">Active Provider</Label>
-            <RadioGroup
-              value={settings.provider}
-              onValueChange={(value) => handleProviderChange(value as AIProvider)}
-              className="mt-2 space-y-2"
-            >
-              {PROVIDERS.map((provider) => (
-                <div key={provider.id} className="flex items-center space-x-2">
-                  <RadioGroupItem
-                    value={provider.id}
-                    id={provider.id}
-                    disabled={provider.requiresKey && !hasApiKey(provider.id)}
-                  />
-                  <Label
-                    htmlFor={provider.id}
-                    className={`flex-1 cursor-pointer ${provider.requiresKey && !hasApiKey(provider.id) ? 'opacity-50' : ''}`}
-                  >
-                    <span className="font-medium">{provider.name}</span>
-                    <span className="text-xs text-muted-foreground block">{provider.description}</span>
+            <div className="border rounded-lg p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <WifiOff className="w-4 h-4" />
+                    Offline Mode
                   </Label>
-                  {hasApiKey(provider.id) && (
-                    <Check className="w-4 h-4 text-green-500" />
-                  )}
+                  <p className="text-xs text-muted-foreground">Disable all AI features - no data sent</p>
                 </div>
-              ))}
-            </RadioGroup>
-          </div>
+                <Switch
+                  checked={settings.offlineMode}
+                  onCheckedChange={(checked) => {
+                    updateSettings({ offlineMode: checked });
+                    toast.success(checked ? 'AI features disabled' : 'AI features enabled');
+                  }}
+                />
+              </div>
 
-          {settings.provider === 'ollama' && (
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <Anonymize className="w-4 h-4" />
+                    Anonymize Data
+                  </Label>
+                  <p className="text-xs text-muted-foreground">Replace labels with placeholders</p>
+                </div>
+                <Switch
+                  checked={settings.anonymizeData}
+                  onCheckedChange={(checked) => {
+                    updateSettings({ anonymizeData: checked });
+                    toast.success(checked ? 'Data will be anonymized' : 'Anonymization disabled');
+                  }}
+                  disabled={settings.offlineMode}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium">Active Provider</Label>
+              <RadioGroup
+                value={settings.provider}
+                onValueChange={(value) => handleProviderChange(value as AIProvider)}
+                className="mt-2 space-y-2"
+              >
+                {PROVIDERS.map((provider) => (
+                  <div key={provider.id} className="flex items-center space-x-2">
+                    <RadioGroupItem
+                      value={provider.id}
+                      id={provider.id}
+                      disabled={provider.requiresKey && !hasApiKey(provider.id)}
+                    />
+                    <Label
+                      htmlFor={provider.id}
+                      className={`flex-1 cursor-pointer ${provider.requiresKey && !hasApiKey(provider.id) ? 'opacity-50' : ''}`}
+                    >
+                      <span className="font-medium">{provider.name}</span>
+                      <span className="text-xs text-muted-foreground block">{provider.description}</span>
+                    </Label>
+                    {hasApiKey(provider.id) && (
+                      <Check className="w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+
+            {settings.provider === 'ollama' && (
             <div className="border-t pt-4">
               <Label className="text-sm font-medium flex items-center gap-2">
                 <Server className="w-4 h-4" />
@@ -239,7 +239,7 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
             </div>
           )}
 
-          <div className="border-t pt-4">
+            <div className="border-t pt-4">
             <Label className="text-sm font-medium">API Keys</Label>
             <div className="mt-2 space-y-3">
               {PROVIDERS.filter(p => p.requiresKey).map((provider) => (
@@ -292,6 +292,7 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
             </div>
           </div>
         </div>
+      </ScrollArea>
       </DialogContent>
     </Dialog>
   );
