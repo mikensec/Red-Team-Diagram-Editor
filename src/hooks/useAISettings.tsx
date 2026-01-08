@@ -8,10 +8,14 @@ export interface AISettings {
   anthropicKey?: string;
   googleKey?: string;
   model?: string;
+  offlineMode: boolean;
+  anonymizeData: boolean;
 }
 
 const DEFAULT_SETTINGS: AISettings = {
   provider: 'lovable',
+  offlineMode: false,
+  anonymizeData: false,
 };
 
 const STORAGE_KEY = 'rtc-ai-settings';

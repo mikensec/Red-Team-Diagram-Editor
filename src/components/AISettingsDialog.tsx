@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Settings, Key, Check, X, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Settings, Key, Check, Eye, EyeOff, Trash2, WifiOff, EyeOff as Anonymize, AlertTriangle } from 'lucide-react';
 import { useAISettings, AIProvider } from '@/hooks/useAISettings';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -113,12 +114,59 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
           </DialogTitle>
         </DialogHeader>
 
+        <Alert className="border-amber-500/20 bg-amber-500/5">
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <AlertDescription className="text-sm">
+            <strong>Privacy Warning:</strong> AI features send your diagram data (node labels, descriptions, connections) to external AI services. 
+            Enable <strong>Offline Mode</strong> to disable AI or use <strong>Anonymize Data</strong> to strip sensitive labels.
+          </AlertDescription>
+        </Alert>
+
         <Alert className="border-blue-500/20 bg-blue-500/5">
           <Key className="h-4 w-4" />
           <AlertDescription className="text-sm">
-            <strong>Privacy:</strong> API keys are stored locally in your browser. They are never sent to our servers - only directly to the AI provider.
+            <strong>API Keys:</strong> Stored locally in your browser. Never sent to our servers - only directly to the AI provider.
           </AlertDescription>
         </Alert>
+
+        <div className="space-y-4">
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <WifiOff className="w-4 h-4" />
+                  Offline Mode
+                </Label>
+                <p className="text-xs text-muted-foreground">Disable all AI features - no data sent anywhere</p>
+              </div>
+              <Switch
+                checked={settings.offlineMode}
+                onCheckedChange={(checked) => {
+                  updateSettings({ offlineMode: checked });
+                  toast.success(checked ? 'AI features disabled' : 'AI features enabled');
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Anonymize className="w-4 h-4" />
+                  Anonymize Data
+                </Label>
+                <p className="text-xs text-muted-foreground">Replace node labels with generic placeholders before sending</p>
+              </div>
+              <Switch
+                checked={settings.anonymizeData}
+                onCheckedChange={(checked) => {
+                  updateSettings({ anonymizeData: checked });
+                  toast.success(checked ? 'Data will be anonymized' : 'Anonymization disabled');
+                }}
+                disabled={settings.offlineMode}
+              />
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-4">
           <div>
