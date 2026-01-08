@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu, ListOrdered, Share2, Sparkles } from 'lucide-react';
+import { Download, Upload, Trash2, Plus, Moon, Sun, HelpCircle, Presentation, Zap, ImageIcon, Type, Menu, ListOrdered, Share2, Sparkles, Brain } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { VERSION } from '@/version';
 import { TemplateGeneratorDialog } from './TemplateGeneratorDialog';
+import { AIAssistantDialog } from './AIAssistantDialog';
 import { AttackNode } from '@/types/Diagram';
 import { Edge } from 'reactflow';
 
@@ -25,6 +26,10 @@ interface ToolbarProps {
   onManageOrder: () => void;
   onApplyTemplate: (nodes: AttackNode[], edges: Edge[]) => void;
   hasNodes: boolean;
+  nodes: AttackNode[];
+  edges: Edge[];
+  selectedNodeId?: string | null;
+  onAddNodeFromAI?: (label: string, icon: string, color: string, description: string) => void;
 }
 export const Toolbar = ({
   onAddNodeClick,
@@ -35,7 +40,11 @@ export const Toolbar = ({
   onStartPresentation,
   onManageOrder,
   onApplyTemplate,
-  hasNodes
+  hasNodes,
+  nodes,
+  edges,
+  selectedNodeId,
+  onAddNodeFromAI
 }: ToolbarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -94,6 +103,13 @@ export const Toolbar = ({
                   Generate Template
                 </Button>
               </TemplateGeneratorDialog>
+
+              <AIAssistantDialog nodes={nodes} edges={edges} selectedNodeId={selectedNodeId} onAddNode={onAddNodeFromAI}>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Brain className="w-4 h-4 mr-2" />
+                  AI Assistant
+                </Button>
+              </AIAssistantDialog>
 
               <Separator />
 
@@ -207,6 +223,12 @@ export const Toolbar = ({
               <Sparkles className="w-4 h-4" />
             </Button>
           </TemplateGeneratorDialog>
+
+          <AIAssistantDialog nodes={nodes} edges={edges} selectedNodeId={selectedNodeId} onAddNode={onAddNodeFromAI}>
+            <Button variant="outline" size="sm" title="AI Red Team Assistant">
+              <Brain className="w-4 h-4" />
+            </Button>
+          </AIAssistantDialog>
 
           <div className="w-px h-6 bg-border" />
 

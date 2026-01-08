@@ -614,6 +614,12 @@ export const DiagramEditor = () => {
           onManageOrder={() => setOrderManagerOpen(true)}
           onApplyTemplate={handleApplyTemplate}
           hasNodes={nodes.length > 0}
+          nodes={nodes as AttackNode[]}
+          edges={edges}
+          selectedNodeId={selectedNodes.length === 1 ? selectedNodes[0].id : null}
+          onAddNodeFromAI={(label, icon, color, description) => {
+            handleAddNode({ label, icon, color, description });
+          }}
         />
       )}
       <AddNodeDialog
