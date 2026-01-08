@@ -16,7 +16,9 @@ import {
   Crosshair,
   Route,
   ClipboardList,
-  ShieldCheck
+  ShieldCheck,
+  AlertTriangle,
+  WifiOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -110,6 +112,7 @@ export function AIAssistantDialog({
       const body: Record<string, unknown> = {
         feature,
         provider: settings.provider,
+        anonymize: settings.anonymizeData,
       };
 
       // Add API key for non-Lovable providers
@@ -122,14 +125,18 @@ export function AIAssistantDialog({
         body.apiKey = apiKey;
       }
 
+      // Anonymize data if enabled
+      const anonymize = (text: string, index: number) => 
+        settings.anonymizeData ? `Node_${index + 1}` : text;
+
       // Add diagram for analysis features
       if (feature !== 'ttp-suggest') {
         body.diagram = {
-          nodes: nodes.map(n => ({
+          nodes: nodes.map((n, i) => ({
             id: n.id,
             data: {
-              label: n.data.label,
-              description: n.data.description,
+              label: anonymize(n.data.label, i),
+              description: settings.anonymizeData ? 'Attack step' : n.data.description,
               icon: n.data.icon,
               color: n.data.color,
             }
@@ -140,11 +147,12 @@ export function AIAssistantDialog({
 
       // Add selected node for TTP suggest
       if (feature === 'ttp-suggest' && selectedNode) {
+        const nodeIndex = nodes.findIndex(n => n.id === selectedNode.id);
         body.selectedNode = {
           id: selectedNode.id,
           data: {
-            label: selectedNode.data.label,
-            description: selectedNode.data.description,
+            label: anonymize(selectedNode.data.label, nodeIndex),
+            description: settings.anonymizeData ? 'Attack step' : selectedNode.data.description,
             icon: selectedNode.data.icon,
           }
         };
@@ -249,6 +257,34 @@ export function AIAssistantDialog({
             </div>
           </DialogHeader>
 
+          {settings.offlineMode && (
+            <Alert className="border-muted bg-muted/50">
+              <WifiOff className="h-4 w-4" />
+              <AlertDescription className="text-sm">
+                <strong>Offline Mode enabled.</strong> AI features are disabled. 
+                <Button 
+                  variant="link" 
+                  className="h-auto p-0 ml-1"
+                  onClick={() => {
+                    // Open settings dialog by triggering the settings button
+                  }}
+                >
+                  Change in AI Settings
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!settings.offlineMode && (
+            <Alert className="border-amber-500/20 bg-amber-500/5">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              <AlertDescription className="text-sm">
+                <strong>Privacy Notice:</strong> Diagram data is sent to {settings.provider === 'lovable' ? 'Lovable AI' : settings.provider.toUpperCase()}.
+                {settings.anonymizeData && <span className="text-green-600 font-medium ml-1">Data anonymization is ON.</span>}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {!isAuthenticated && (
             <Alert className="border-amber-500/20 bg-amber-500/5">
               <LogIn className="h-4 w-4" />
@@ -311,7 +347,7 @@ export function AIAssistantDialog({
 
               <Button 
                 onClick={() => callAIAssistant('ttp-suggest')} 
-                disabled={loading || !selectedNode}
+                disabled={loading || !selectedNode || settings.offlineMode}
                 className="w-full"
               >
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Crosshair className="w-4 h-4 mr-2" />}
@@ -355,7 +391,7 @@ export function AIAssistantDialog({
 
               <Button 
                 onClick={() => callAIAssistant('attack-path-analyze')} 
-                disabled={loading || nodes.length === 0}
+                disabled={loading || nodes.length === 0 || settings.offlineMode}
                 className="w-full"
               >
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Route className="w-4 h-4 mr-2" />}
@@ -412,7 +448,7 @@ export function AIAssistantDialog({
 
               <Button 
                 onClick={() => callAIAssistant('executive-summary')} 
-                disabled={loading || nodes.length === 0}
+                disabled={loading || nodes.length === 0 || settings.offlineMode}
                 className="w-full"
               >
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
@@ -477,7 +513,7 @@ export function AIAssistantDialog({
 
               <Button 
                 onClick={() => callAIAssistant('remediation-advisor')} 
-                disabled={loading || nodes.length === 0}
+                disabled={loading || nodes.length === 0 || settings.offlineMode}
                 className="w-full"
               >
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Shield className="w-4 h-4 mr-2" />}
