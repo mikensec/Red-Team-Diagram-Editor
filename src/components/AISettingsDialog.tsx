@@ -115,7 +115,7 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
@@ -123,8 +123,8 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 -mx-6 px-6">
-          <div className="space-y-4 pr-2">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="space-y-4 pr-4">
             <Alert className="border-amber-500/20 bg-amber-500/5">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
               <AlertDescription className="text-sm">
@@ -184,25 +184,35 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
                 onValueChange={(value) => handleProviderChange(value as AIProvider)}
                 className="mt-2 space-y-2"
               >
-                {PROVIDERS.map((provider) => (
-                  <div key={provider.id} className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value={provider.id}
-                      id={provider.id}
-                      disabled={provider.requiresKey && !hasApiKey(provider.id)}
-                    />
-                    <Label
-                      htmlFor={provider.id}
-                      className={`flex-1 cursor-pointer ${provider.requiresKey && !hasApiKey(provider.id) ? 'opacity-50' : ''}`}
-                    >
-                      <span className="font-medium">{provider.name}</span>
-                      <span className="text-xs text-muted-foreground block">{provider.description}</span>
-                    </Label>
-                    {hasApiKey(provider.id) && (
-                      <Check className="w-4 h-4 text-green-500" />
-                    )}
-                  </div>
-                ))}
+                {PROVIDERS.map((provider) => {
+                  const needsKey = provider.requiresKey && !hasApiKey(provider.id);
+                  return (
+                    <div key={provider.id} className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value={provider.id}
+                        id={provider.id}
+                        disabled={needsKey}
+                      />
+                      <Label
+                        htmlFor={provider.id}
+                        className={`flex-1 cursor-pointer ${needsKey ? 'opacity-50' : ''}`}
+                      >
+                        <span className="font-medium flex items-center gap-2">
+                          {provider.name}
+                          {needsKey && (
+                            <span className="text-[10px] font-normal bg-amber-500/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded">
+                              API key required
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-xs text-muted-foreground block">{provider.description}</span>
+                      </Label>
+                      {hasApiKey(provider.id) && (
+                        <Check className="w-4 h-4 text-green-500" />
+                      )}
+                    </div>
+                  );
+                })}
               </RadioGroup>
             </div>
 
