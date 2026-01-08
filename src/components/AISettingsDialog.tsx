@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
-import { Settings, Key, Check, Eye, EyeOff, Trash2, WifiOff, EyeOff as Anonymize, AlertTriangle } from 'lucide-react';
+import { Settings, Key, Check, Eye, EyeOff, Trash2, WifiOff, EyeOff as Anonymize, AlertTriangle, Server } from 'lucide-react';
 import { useAISettings, AIProvider } from '@/hooks/useAISettings';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -16,6 +16,13 @@ const PROVIDERS = [
     name: 'Lovable AI (Built-in)',
     description: 'Free tier included - no API key required',
     requiresKey: false,
+  },
+  {
+    id: 'ollama' as AIProvider,
+    name: 'Ollama (Local)',
+    description: '100% private - runs on your machine, no data leaves',
+    requiresKey: false,
+    isLocal: true,
   },
   {
     id: 'openai' as AIProvider,
@@ -52,6 +59,7 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
     openai: false,
     anthropic: false,
     google: false,
+    ollama: false,
   });
   const [tempKeys, setTempKeys] = useState({
     openai: settings.openaiKey || '',
@@ -88,12 +96,12 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
   };
 
   const handleProviderChange = (provider: AIProvider) => {
-    if (provider !== 'lovable' && !hasApiKey(provider)) {
+    if (provider !== 'lovable' && provider !== 'ollama' && !hasApiKey(provider)) {
       toast.error(`Please add your ${provider.charAt(0).toUpperCase() + provider.slice(1)} API key first`);
       return;
     }
     updateSettings({ provider });
-    toast.success(`Switched to ${provider.charAt(0).toUpperCase() + provider.slice(1)}`);
+    toast.success(`Switched to ${provider === 'ollama' ? 'Ollama (Local)' : provider.charAt(0).toUpperCase() + provider.slice(1)}`);
   };
 
   return (
@@ -197,6 +205,39 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
               ))}
             </RadioGroup>
           </div>
+
+          {settings.provider === 'ollama' && (
+            <div className="border-t pt-4">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <Server className="w-4 h-4" />
+                Ollama Configuration
+              </Label>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">
+                Make sure Ollama is running locally. Data stays 100% on your machine.
+              </p>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Server URL</Label>
+                  <Input
+                    placeholder="http://localhost:11434"
+                    value={settings.ollamaUrl}
+                    onChange={(e) => updateSettings({ ollamaUrl: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Model</Label>
+                  <Input
+                    placeholder="llama3.2"
+                    value={settings.ollamaModel}
+                    onChange={(e) => updateSettings({ ollamaModel: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Run <code className="bg-muted px-1 rounded">ollama list</code> to see available models
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="border-t pt-4">
             <Label className="text-sm font-medium">API Keys</Label>

@@ -93,8 +93,62 @@ export function AIAssistantDialog({
     ? nodes.find(n => n.id === selectedNodeId) 
     : null;
 
+  const SYSTEM_PROMPTS: Record<string, string> = {
+    'ttp-suggest': `You are a MITRE ATT&CK expert. Given a node from a red team attack diagram, suggest 3-5 logical next attack techniques. For each suggestion, provide: technique (with MITRE ID), description, tactic, icon (Shield/Terminal/Key/Network/User/Database/Cloud/Mail/Lock/Unlock/Bug/Zap/Eye/FileText/Server/Globe), color (hex). Output as JSON array: [{"technique": "...", "description": "...", "tactic": "...", "icon": "...", "color": "#..."}]`,
+    'attack-path-analyze': `You are a red team expert. Analyze the attack diagram for gaps, missing steps, or alternative attack paths. Output as JSON: {"gaps": [{"between": ["node1", "node2"], "missing": "description", "suggestion": "what to add"}], "alternatives": [{"description": "...", "path": ["step1", "step2"]}], "improvements": ["suggestion1"], "risk_rating": {"level": "low/medium/high/critical", "explanation": "..."}}`,
+    'executive-summary': `You are a security consultant. Generate a non-technical executive summary. Output as JSON: {"title": "...", "summary": "...", "impact": "...", "key_findings": ["..."], "recommendations": ["..."]}`,
+    'remediation-advisor': `You are a defensive security expert. For each step, provide defensive recommendations. Output as JSON array: [{"node_label": "...", "detection": "...", "prevention": "...", "mitigation": "...", "controls": [{"name": "...", "priority": "high|medium|low"}]}]`
+  };
+
+  const buildUserPrompt = (feature: string): string => {
+    const anonymize = (text: string, index: number) => 
+      settings.anonymizeData ? `Node_${index + 1}` : text;
+
+    if (feature === 'ttp-suggest' && selectedNode) {
+      const nodeIndex = nodes.findIndex(n => n.id === selectedNode.id);
+      return `Current node: "${anonymize(selectedNode.data.label, nodeIndex)}"\nDescription: ${settings.anonymizeData ? 'Attack step' : selectedNode.data.description || 'No description'}\nSuggest the next logical attack techniques.`;
+    }
+
+    const nodeDescriptions = nodes.map((n, i) => 
+      `- ${anonymize(n.data.label, i)}${!settings.anonymizeData && n.data.description ? `: ${n.data.description}` : ''}`
+    ).join('\n');
+
+    const edgeDescriptions = edges.map(e => {
+      const sourceIdx = nodes.findIndex(n => n.id === e.source);
+      const targetIdx = nodes.findIndex(n => n.id === e.target);
+      const source = anonymize(nodes[sourceIdx]?.data.label || e.source, sourceIdx);
+      const target = anonymize(nodes[targetIdx]?.data.label || e.target, targetIdx);
+      return `- ${source} → ${target}`;
+    }).join('\n');
+
+    return `Attack Diagram:\n\nNODES:\n${nodeDescriptions}\n\nCONNECTIONS:\n${edgeDescriptions || 'None'}\n\nAnalyze this attack chain.`;
+  };
+
+  const callOllamaLocal = async (feature: string): Promise<string> => {
+    const response = await fetch(`${settings.ollamaUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: settings.ollamaModel,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPTS[feature] },
+          { role: 'user', content: buildUserPrompt(feature) }
+        ],
+        stream: false,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ollama error: ${response.status}. Make sure Ollama is running.`);
+    }
+
+    const data = await response.json();
+    return data.message?.content || '';
+  };
+
   const callAIAssistant = async (feature: string) => {
-    if (!isAuthenticated) {
+    // For Ollama, skip auth check - it's local
+    if (settings.provider !== 'ollama' && !isAuthenticated) {
       setShowAuthDialog(true);
       return;
     }
@@ -103,92 +157,127 @@ export function AIAssistantDialog({
     setError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        setShowAuthDialog(true);
+      let resultText: string;
+
+      if (settings.provider === 'ollama') {
+        // Call Ollama directly from browser - 100% local
+        resultText = await callOllamaLocal(feature);
+      } else {
+        // Use edge function for cloud providers
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+          setShowAuthDialog(true);
+          return;
+        }
+
+        const anonymize = (text: string, index: number) => 
+          settings.anonymizeData ? `Node_${index + 1}` : text;
+
+        const body: Record<string, unknown> = {
+          feature,
+          provider: settings.provider,
+          anonymize: settings.anonymizeData,
+        };
+
+        if (settings.provider !== 'lovable') {
+          const apiKey = getActiveApiKey();
+          if (!apiKey) {
+            toast.error(`Please add your ${settings.provider} API key in AI Settings`);
+            return;
+          }
+          body.apiKey = apiKey;
+        }
+
+        if (feature !== 'ttp-suggest') {
+          body.diagram = {
+            nodes: nodes.map((n, i) => ({
+              id: n.id,
+              data: {
+                label: anonymize(n.data.label, i),
+                description: settings.anonymizeData ? 'Attack step' : n.data.description,
+                icon: n.data.icon,
+                color: n.data.color,
+              }
+            })),
+            edges: edges.map(e => ({ source: e.source, target: e.target }))
+          };
+        }
+
+        if (feature === 'ttp-suggest' && selectedNode) {
+          const nodeIndex = nodes.findIndex(n => n.id === selectedNode.id);
+          body.selectedNode = {
+            id: selectedNode.id,
+            data: {
+              label: anonymize(selectedNode.data.label, nodeIndex),
+              description: settings.anonymizeData ? 'Attack step' : selectedNode.data.description,
+              icon: selectedNode.data.icon,
+            }
+          };
+        }
+
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify(body),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'AI request failed');
+        }
+
+        const data = await response.json();
+        
+        // Handle result from edge function
+        switch (feature) {
+          case 'ttp-suggest':
+            setTtpResults(Array.isArray(data.result) ? data.result : []);
+            break;
+          case 'attack-path-analyze':
+            setPathResults(data.result);
+            break;
+          case 'executive-summary':
+            setSummaryResults(data.result);
+            break;
+          case 'remediation-advisor':
+            setRemediationResults(Array.isArray(data.result) ? data.result : []);
+            break;
+        }
+        toast.success('Analysis complete');
         return;
       }
 
-      const body: Record<string, unknown> = {
-        feature,
-        provider: settings.provider,
-        anonymize: settings.anonymizeData,
-      };
-
-      // Add API key for non-Lovable providers
-      if (settings.provider !== 'lovable') {
-        const apiKey = getActiveApiKey();
-        if (!apiKey) {
-          toast.error(`Please add your ${settings.provider} API key in AI Settings`);
-          return;
+      // Parse Ollama response
+      let parsedResult;
+      try {
+        let jsonStr = resultText;
+        if (jsonStr.includes('```')) {
+          const match = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+          if (match) jsonStr = match[1].trim();
         }
-        body.apiKey = apiKey;
+        parsedResult = JSON.parse(jsonStr);
+      } catch {
+        throw new Error('Failed to parse AI response');
       }
 
-      // Anonymize data if enabled
-      const anonymize = (text: string, index: number) => 
-        settings.anonymizeData ? `Node_${index + 1}` : text;
-
-      // Add diagram for analysis features
-      if (feature !== 'ttp-suggest') {
-        body.diagram = {
-          nodes: nodes.map((n, i) => ({
-            id: n.id,
-            data: {
-              label: anonymize(n.data.label, i),
-              description: settings.anonymizeData ? 'Attack step' : n.data.description,
-              icon: n.data.icon,
-              color: n.data.color,
-            }
-          })),
-          edges: edges.map(e => ({ source: e.source, target: e.target }))
-        };
-      }
-
-      // Add selected node for TTP suggest
-      if (feature === 'ttp-suggest' && selectedNode) {
-        const nodeIndex = nodes.findIndex(n => n.id === selectedNode.id);
-        body.selectedNode = {
-          id: selectedNode.id,
-          data: {
-            label: anonymize(selectedNode.data.label, nodeIndex),
-            description: settings.anonymizeData ? 'Attack step' : selectedNode.data.description,
-            icon: selectedNode.data.icon,
-          }
-        };
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify(body),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'AI request failed');
-      }
-
-      const data = await response.json();
-      
       switch (feature) {
         case 'ttp-suggest':
-          setTtpResults(Array.isArray(data.result) ? data.result : []);
+          setTtpResults(Array.isArray(parsedResult) ? parsedResult : []);
           break;
         case 'attack-path-analyze':
-          setPathResults(data.result);
+          setPathResults(parsedResult);
           break;
         case 'executive-summary':
-          setSummaryResults(data.result);
+          setSummaryResults(parsedResult);
           break;
         case 'remediation-advisor':
-          setRemediationResults(Array.isArray(data.result) ? data.result : []);
+          setRemediationResults(Array.isArray(parsedResult) ? parsedResult : []);
           break;
       }
 
@@ -251,7 +340,9 @@ export function AIAssistantDialog({
               <AISettingsDialog>
                 <Button variant="ghost" size="sm">
                   <Settings className="w-4 h-4 mr-1" />
-                  {settings.provider === 'lovable' ? 'Lovable AI' : settings.provider.toUpperCase()}
+                  {settings.provider === 'lovable' ? 'Lovable AI' : 
+                   settings.provider === 'ollama' ? 'Ollama (Local)' : 
+                   settings.provider.toUpperCase()}
                 </Button>
               </AISettingsDialog>
             </div>
@@ -275,7 +366,16 @@ export function AIAssistantDialog({
             </Alert>
           )}
 
-          {!settings.offlineMode && (
+          {!settings.offlineMode && settings.provider === 'ollama' && (
+            <Alert className="border-green-500/20 bg-green-500/5">
+              <Shield className="h-4 w-4 text-green-500" />
+              <AlertDescription className="text-sm">
+                <strong className="text-green-600">100% Private:</strong> Using local Ollama - no data leaves your machine.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!settings.offlineMode && settings.provider !== 'ollama' && (
             <Alert className="border-amber-500/20 bg-amber-500/5">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
               <AlertDescription className="text-sm">
@@ -285,7 +385,7 @@ export function AIAssistantDialog({
             </Alert>
           )}
 
-          {!isAuthenticated && (
+          {settings.provider !== 'ollama' && !isAuthenticated && (
             <Alert className="border-amber-500/20 bg-amber-500/5">
               <LogIn className="h-4 w-4" />
               <AlertDescription className="text-sm">

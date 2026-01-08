@@ -1,6 +1,6 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 
-export type AIProvider = 'lovable' | 'openai' | 'anthropic' | 'google';
+export type AIProvider = 'lovable' | 'openai' | 'anthropic' | 'google' | 'ollama';
 
 export interface AISettings {
   provider: AIProvider;
@@ -10,12 +10,16 @@ export interface AISettings {
   model?: string;
   offlineMode: boolean;
   anonymizeData: boolean;
+  ollamaUrl: string;
+  ollamaModel: string;
 }
 
 const DEFAULT_SETTINGS: AISettings = {
   provider: 'lovable',
   offlineMode: false,
   anonymizeData: false,
+  ollamaUrl: 'http://localhost:11434',
+  ollamaModel: 'llama3.2',
 };
 
 const STORAGE_KEY = 'rtc-ai-settings';
@@ -66,7 +70,8 @@ export function AISettingsProvider({ children }: { children: ReactNode }) {
   };
 
   const hasApiKey = (provider: AIProvider): boolean => {
-    if (provider === 'lovable') return true; // Always available
+    if (provider === 'lovable') return true;
+    if (provider === 'ollama') return true; // No API key needed for local Ollama
     if (provider === 'openai') return !!settings.openaiKey;
     if (provider === 'anthropic') return !!settings.anthropicKey;
     if (provider === 'google') return !!settings.googleKey;
