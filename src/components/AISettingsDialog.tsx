@@ -123,7 +123,7 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 100px)' }}>
           <div className="space-y-4 pr-4">
             <Alert className="border-amber-500/20 bg-amber-500/5">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
