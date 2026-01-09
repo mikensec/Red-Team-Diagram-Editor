@@ -391,14 +391,24 @@ const generateHtmlContent = (diagram: Diagram): string => {
       'Workflow': 'workflow'
     };
     
-    // Create icon element
+    // Validate icon name against whitelist and sanitize for safe HTML rendering
+    function sanitizeForAttribute(str) {
+      return String(str).replace(/[&<>"']/g, function(char) {
+        const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return entities[char] || char;
+      });
+    }
+    
+    // Create icon element - only uses whitelisted icon names from iconMap
     function createIcon(iconName, color) {
-      const lucideName = iconMap[iconName] || 'circle';
+      // Only allow icons that exist in the whitelist, default to 'circle' for safety
+      const lucideName = Object.prototype.hasOwnProperty.call(iconMap, iconName) ? iconMap[iconName] : 'circle';
+      // Sanitize the lucide name as an extra safety measure
+      const safeLucideName = sanitizeForAttribute(lucideName);
       return h('div', { 
         className: 'node-icon',
-        style: { color },
-        dangerouslySetInnerHTML: { __html: '<i data-lucide="' + lucideName + '" style="width:24px;height:24px;"></i>' }
-      });
+        style: { color }
+      }, h('i', { 'data-lucide': safeLucideName, style: { width: '24px', height: '24px' } }));
     }
     
     // Attachment Modal Component
