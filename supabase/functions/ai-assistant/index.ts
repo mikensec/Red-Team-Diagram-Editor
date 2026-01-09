@@ -243,7 +243,7 @@ serve(async (req) => {
       );
     }
 
-    // Validate JWT
+    // Validate JWT using getUser for server-side token verification
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     
@@ -251,6 +251,7 @@ serve(async (req) => {
       global: { headers: { Authorization: authHeader } }
     });
 
+    // getUser() performs server-side JWT validation against Supabase Auth
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError || !user) {
