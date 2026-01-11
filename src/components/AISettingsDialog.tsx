@@ -133,10 +133,17 @@ export function AISettingsDialog({ children }: AISettingsDialogProps) {
               </AlertDescription>
             </Alert>
 
-            <Alert className="border-blue-500/20 bg-blue-500/5">
-              <Key className="h-4 w-4" />
+            <Alert className="border-amber-500/20 bg-amber-500/5">
+              <Key className="h-4 w-4 text-amber-500" />
               <AlertDescription className="text-sm">
-                <strong>API Keys:</strong> Stored locally in your browser only.
+                <strong>API Key Security:</strong> Keys are stored unencrypted in your browser's localStorage. 
+                They may be accessible to browser extensions or if an XSS vulnerability exists. 
+                <strong> We recommend:</strong>
+                <ul className="list-disc list-inside mt-1 text-xs">
+                  <li>Use API keys with spending limits</li>
+                  <li>Rotate keys periodically</li>
+                  <li>Clear keys when using shared computers</li>
+                </ul>
               </AlertDescription>
             </Alert>
 
