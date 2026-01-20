@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
 // Template categories with pre-defined prompts (NO user data ever sent)
 const TEMPLATE_CATEGORIES: Record<string, { name: string; prompt: string }> = {
   'phishing-chain': {
@@ -75,10 +75,12 @@ Follow this exact schema:
   ]
 }
 
-Layout guidelines:
-- Left-to-right: Start at x:0, increment x by 280 for each node
-- Top-to-bottom: Start at y:0, increment y by 180 for each node
-- For branching, offset y by ±150 from main path
+CRITICAL Layout guidelines - ALWAYS use HORIZONTAL left-to-right flow as the PRIMARY direction:
+- Main chain: Start at x:50, y:100. For each sequential node, increment x by 350 (keep y the same)
+- Branching: When a node has multiple outputs, offset branches vertically by ±200 on the y-axis
+- Secondary paths: Place parallel/alternative paths at y:300 or y:-100, still flowing left-to-right
+- NEVER stack nodes vertically as the main flow - horizontal chains look much better
+- Minimum spacing: 300px horizontally between nodes, 180px vertically between branches
 
 Available icons (use exact names):
 - Security: Shield, ShieldAlert, ShieldCheck, Lock, Unlock, Key, Fingerprint
@@ -114,6 +116,33 @@ serve(async (req) => {
   }
 
   try {
+    // Verify the request has a valid Authorization header with a JWT
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate JWT using getUser for server-side token verification
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // getUser() performs server-side JWT validation against Supabase Auth
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired session' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { categoryId } = await req.json();
     
     if (!categoryId || !TEMPLATE_CATEGORIES[categoryId]) {
@@ -216,6 +245,68 @@ serve(async (req) => {
     if (!parsedDiagram.edges || !Array.isArray(parsedDiagram.edges)) {
       parsedDiagram.edges = [];
     }
+
+    // Build node position lookup for edge handle calculation and set transparent backgrounds
+    const nodePositions: Record<string, { x: number; y: number }> = {};
+    for (const node of parsedDiagram.nodes) {
+      if (node.id && node.position) {
+        nodePositions[node.id] = node.position;
+      }
+      // Ensure all nodes have transparent background by default
+      if (node.data) {
+        node.data.style = {
+          ...node.data.style,
+          background: 'transparent',
+        };
+      }
+    }
+
+    // Calculate proper sourceHandle and targetHandle based on relative positions
+    parsedDiagram.edges = parsedDiagram.edges.map((edge: { id: string; source: string; target: string }) => {
+      const sourcePos = nodePositions[edge.source];
+      const targetPos = nodePositions[edge.target];
+      
+      if (!sourcePos || !targetPos) {
+        return edge;
+      }
+
+      const dx = targetPos.x - sourcePos.x;
+      const dy = targetPos.y - sourcePos.y;
+      
+      let sourceHandle: string;
+      let targetHandle: string;
+      
+      // Determine primary direction based on larger delta
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal connection
+        if (dx > 0) {
+          // Target is to the right
+          sourceHandle = 'right-source';
+          targetHandle = 'left-target';
+        } else {
+          // Target is to the left
+          sourceHandle = 'left-source';
+          targetHandle = 'right-target';
+        }
+      } else {
+        // Vertical connection
+        if (dy > 0) {
+          // Target is below
+          sourceHandle = 'bottom-source';
+          targetHandle = 'top-target';
+        } else {
+          // Target is above
+          sourceHandle = 'top-source';
+          targetHandle = 'bottom-target';
+        }
+      }
+      
+      return {
+        ...edge,
+        sourceHandle,
+        targetHandle,
+      };
+    });
 
     console.log(`Successfully generated template with ${parsedDiagram.nodes.length} nodes and ${parsedDiagram.edges.length} edges`);
 

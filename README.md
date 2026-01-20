@@ -1,9 +1,12 @@
 ![Red Team Diagram Editor](public/images/banner.png)
 
+# Red Team Diagram Editor v2.0
+
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Live Demo](https://img.shields.io/badge/demo-live-blue.svg)](https://red.michaelnieto.com)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB.svg)](https://reactjs.org/)
 [![PWA](https://img.shields.io/badge/PWA-enabled-5A0FC8.svg)](https://web.dev/progressive-web-apps/)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/mikensec/Red-Team-Diagram-Editor)
 
 A powerful, browser-based Progressive Web App (PWA) for creating and managing red team attack diagrams. Built with React Flow, this application provides an intuitive interface for visualizing attack paths, tactics, and techniques with zero backend dependencies. Install it like a native app and run it completely offline.
 
@@ -55,6 +58,7 @@ A powerful, browser-based Progressive Web App (PWA) for creating and managing re
 - **Presentation Order**: Customize the order nodes appear in presentations
 - **Responsive Design**: Works on desktop and mobile devices
 - **No Backend Required**: Complete client-side application with localStorage and IndexedDB
+- **AI Template Generation**: Generate attack diagrams from predefined templates using AI (requires authentication)
 
 ## 🤖 AI/LLM Integration
 
@@ -277,6 +281,8 @@ Built with:
 - [Lovable](https://lovable.dev/) - AI-powered development platform
 
 ---
+
+**Version 2.0.0** - Now with AI-powered template generation, improved layouts, and enhanced security.
 
 **⭐ Star this repo if you find it useful!**
 

@@ -27,7 +27,7 @@ const Help = () => {
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-foreground">Help & Documentation</h1>
-              <p className="text-muted-foreground">Learn how to use the Red Team Diagram Editor</p>
+              <p className="text-muted-foreground">Learn how to use the Red Team Diagram Editor v2.0</p>
             </div>
           </div>
           <Button 
@@ -525,7 +525,7 @@ const Help = () => {
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-lg">Michael Nieto</h4>
-                <p className="text-sm text-muted-foreground mt-1">Red Team Attack Diagram Tool</p>
+                <p className="text-sm text-muted-foreground mt-1">Red Team Attack Diagram Tool v2.0</p>
                 <a 
                   href="https://www.linkedin.com/in/nietomichael/" 
                   target="_blank" 

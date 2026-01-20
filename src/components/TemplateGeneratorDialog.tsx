@@ -16,12 +16,17 @@ import {
   Zap,
   Loader2,
   AlertCircle,
-  Shield
+  Shield,
+  LogIn,
+  LogOut
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AttackNode } from '@/types/Diagram';
 import { Edge } from 'reactflow';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
+import { AuthDialog } from './AuthDialog';
+import { useAuth } from '@/hooks/useAuth';
 
 interface TemplateCategory {
   id: string;
@@ -109,20 +114,38 @@ export function TemplateGeneratorDialog({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [generatedDiagram, setGeneratedDiagram] = useState<{ nodes: AttackNode[]; edges: Edge[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const { user, signOut, isAuthenticated } = useAuth();
 
   const handleGenerate = async (categoryId: string) => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      setShowAuthDialog(true);
+      return;
+    }
+
     setLoading(true);
     setSelectedCategory(categoryId);
     setError(null);
     setGeneratedDiagram(null);
 
     try {
+      // Get the current session for auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        setShowAuthDialog(true);
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-diagram-template`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ categoryId }),
         }
@@ -168,26 +191,74 @@ export function TemplateGeneratorDialog({
     setError(null);
   };
 
+  const handleAuthSuccess = () => {
+    // Auth successful, user can now try generating again
+    toast.success('You can now generate AI templates');
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) handleClose();
-      else setOpen(true);
-    }}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button variant="outline" size="sm">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Generate Template
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+    <>
+      <AuthDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog}
+        onSuccess={handleAuthSuccess}
+      />
+      <Dialog open={open} onOpenChange={(isOpen) => {
+        if (!isOpen) handleClose();
+        else setOpen(true);
+      }}>
+        <DialogTrigger asChild>
+          {children || (
+            <Button variant="outline" size="sm">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Generate Template
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            Generate Attack Diagram Template
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Generate Attack Diagram Template
+            </DialogTitle>
+            {isAuthenticated && user && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground truncate max-w-[150px]">
+                  {user.email}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    signOut();
+                    toast.success('Signed out');
+                  }}
+                  className="h-7 px-2"
+                >
+                  <LogOut className="w-3 h-3 mr-1" />
+                  Sign out
+                </Button>
+              </div>
+            )}
+          </div>
         </DialogHeader>
+
+        {!isAuthenticated && (
+          <Alert className="border-amber-500/20 bg-amber-500/5">
+            <LogIn className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <strong>Sign in required:</strong> Create a free account to use AI template generation.
+              <Button 
+                variant="link" 
+                className="h-auto p-0 ml-1"
+                onClick={() => setShowAuthDialog(true)}
+              >
+                Sign in now
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Alert className="border-primary/20 bg-primary/5">
           <Shield className="h-4 w-4" />
@@ -281,5 +352,6 @@ export function TemplateGeneratorDialog({
         )}
       </DialogContent>
     </Dialog>
+    </>
   );
 }
